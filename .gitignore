@@ -1,5 +1,12 @@
-bin/
-obj/
-/packages/
-riderModule.iml
-/_ReSharper.Caches/
+# 参考模组（不作为 StoryMaker 源码一部分提交）
+参考模组RimChat/
+
+# 编译产物
+Assemblies/
+*.pdb
+*.dll
+
+# IDE
+.idea/
+*.user
+*.DotSettings.user

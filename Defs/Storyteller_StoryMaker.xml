@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+    <!-- 继承 BaseStoryteller 的全部基础 comp（通关任务、深钻井虫害、DLC 任务线等）。
+         子类不再添加任何自动生成叙事事件的 comp（ThreatBig/ThreatSmall/Misc 等），
+         所有叙事事件由 LLM 驱动的 EventScheduler 替代。
+         仅显式保留：
+         - Caravan/TempMap 的 CategoryIndividualMTBByBiome（远行队/临时地图自动事件）
+         - StrangerInBlackJoin（黑衣人紧急救援）
+    -->
+    <StorytellerDef ParentName="BaseStoryteller">
+        <defName>StoryMaker</defName>
+        <label>AI 叙事者</label>
+        <description>云端大语言模型驱动的智能叙事者。它会阅读殖民地的实时状态，提前规划未来多天的叙事事件序列，实现有上下文感知的连贯叙事。需要在 Mod 设置中配置 AI 服务。</description>
+        <portraitLarge>UI/Storyteller/StoryMaker_Large</portraitLarge>
+        <portraitTiny>UI/Storyteller/StoryMaker_Tiny</portraitTiny>
+        <listOrder>10</listOrder>
+
+        <comps>
+            <!-- Caravan/Temp Map: Misc（远行队和临时地图随机杂项事件——由原版驱动，LLM 不干预） -->
+            <li Class="StorytellerCompProperties_CategoryIndividualMTBByBiome">
+                <category>Misc</category>
+                <allowedTargetTags>
+                    <li>Caravan</li>
+                    <li>Map_TempIncident</li>
+                </allowedTargetTags>
+            </li>
+            <!-- Caravan/Temp Map: ThreatSmall -->
+            <li Class="StorytellerCompProperties_CategoryIndividualMTBByBiome">
+                <category>ThreatSmall</category>
+                <applyCaravanVisibility>true</applyCaravanVisibility>
+                <allowedTargetTags>
+                    <li>Caravan</li>
+                    <li>Map_TempIncident</li>
+                </allowedTargetTags>
+            </li>
+            <!-- Caravan/Temp Map: ThreatBig -->
+            <li Class="StorytellerCompProperties_CategoryIndividualMTBByBiome">
+                <category>ThreatBig</category>
+                <applyCaravanVisibility>true</applyCaravanVisibility>
+                <allowedTargetTags>
+                    <li>Caravan</li>
+                    <li>Map_TempIncident</li>
+                </allowedTargetTags>
+            </li>
+            <!-- 黑衣人救援：殖民者全员倒地后的紧急救援 -->
+            <li Class="StorytellerCompProperties_Triggered">
+                <incident>StrangerInBlackJoin</incident>
+                <delayTicks>180</delayTicks>
+            </li>
+        </comps>
+    </StorytellerDef>
+</Defs>

@@ -165,10 +165,11 @@ class SnapshotField_FactionRelations : ISnapshotField
 class SnapshotField_RecentEvents : ISnapshotField
 {
     public string Key => "recentEvents";
-    public bool IncludeInLowTokenMode => false;
+    public bool IncludeInLowTokenMode => true;
     public object Collect()
     {
-        return IncidentEventStack.PopAllIncidents();
+        var result = IncidentEventStack.PopAllIncidents();
+        return result;
     }
 }
 
@@ -177,10 +178,11 @@ class SnapshotField_RecentEvents : ISnapshotField
 class SnapshotField_RecentDeaths : ISnapshotField
 {
     public string Key => "recentDeaths";
-    public bool IncludeInLowTokenMode => false;
+    public bool IncludeInLowTokenMode => true;
     public object Collect()
     {
-        return IncidentEventStack.PopAllDeaths();
+        var result = IncidentEventStack.PopAllDeaths();
+        return result;
     }
 }
 

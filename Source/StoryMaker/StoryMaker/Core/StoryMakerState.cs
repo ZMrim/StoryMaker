@@ -4,18 +4,18 @@ namespace StoryMaker.Core;
 
 public class StoryMakerState
 {
+    public static StoryMakerState Instance { get; } = new StoryMakerState();
+
     public int ack;
     public bool permanentDegraded;
     public string degradationReason;
     public int consecutiveEmptyPlans;
 
-    public StoryMakerState()
-    {
-        ack = 0;
-        permanentDegraded = false;
-        degradationReason = "";
-        consecutiveEmptyPlans = 0;
-    }
+    // Phase 2: 上下文版本号，每次读档/新游戏递增，用于丢弃陈旧 HTTP 回调
+    public int contextVersion;
+
+    // Phase 2 预留: 请求锁（Phase 4 TCP 滑动窗口完整实现时使用）
+    public bool requestLocked;
 
     public void ResetDegradation()
     {

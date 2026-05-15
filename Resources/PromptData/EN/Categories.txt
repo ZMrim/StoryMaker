@@ -1,0 +1,10 @@
+AllyAssistance: An allied faction sends troops to assist the colony against current threats
+DiseaseAnimal: Animal disease events
+DiseaseHuman: Human disease events
+FactionArrival: Faction members arrive at the colony (traders/visitors/travelers/tribute collectors)
+GiveQuest: Gives the player a quest
+Misc: Miscellaneous events including weather changes, environmental events, random joiners, resource drops, etc.
+OrbitalVisitor: Orbital trader ship arrives (trade via comms console)
+ShipChunkDrop: Ship chunk crash-lands on the colony map
+ThreatBig: Major threat events (raids, infestations, mechanoids, anomaly entity attacks, etc.)
+ThreatSmall: Minor threat events (single maddened animal, small shambler swarm, etc.)

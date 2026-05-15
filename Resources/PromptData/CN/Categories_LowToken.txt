@@ -1,0 +1,10 @@
+AllyAssistance: 盟友支援
+DiseaseAnimal: 动物疾病
+DiseaseHuman: 人类疾病
+FactionArrival: 派系抵达(商队/访客/旅行者)
+GiveQuest: 任务
+Misc: 杂项(天气/环境/加入/资源)
+OrbitalVisitor: 轨道商船
+ShipChunkDrop: 碎片坠落
+ThreatBig: 大型威胁(袭击/虫害/机械/异常)
+ThreatSmall: 小型威胁(单体狂暴/少量蹒跚者)

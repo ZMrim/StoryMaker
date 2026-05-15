@@ -1,0 +1,10 @@
+AllyAssistance: 盟友派系派兵支援殖民地对抗当前威胁
+DiseaseAnimal: 动物疾病事件
+DiseaseHuman: 人类疾病事件
+FactionArrival: 派系成员抵达殖民地（商队/访客/旅行者/税收官）
+GiveQuest: 向玩家提供一个任务
+Misc: 杂项事件，涵盖天气变化、环境事件、随机加入、资源掉落等各类小型事件
+OrbitalVisitor: 轨道商船抵达（通过通讯台交易）
+ShipChunkDrop: 飞船碎片坠落在殖民地图上
+ThreatBig: 大型威胁事件（袭击、虫害、机械族、异常实体攻击等）
+ThreatSmall: 小型威胁事件（单个狂暴动物、少量蹒跚者等）

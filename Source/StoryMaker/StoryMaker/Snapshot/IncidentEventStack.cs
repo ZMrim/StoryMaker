@@ -30,15 +30,19 @@ public static class IncidentEventStack
 
     public static List<RecentEventEntry> PopAllIncidents()
     {
+        int before = incidentStack.Count;
         var result = new List<RecentEventEntry>(incidentStack);
         incidentStack.Clear();
+        Log.Message($"[StoryMaker] PopAllIncidents: 出栈 {result.Count} 条事件 (清空前深度={before})");
         return result;
     }
 
     public static List<DeathEntry> PopAllDeaths()
     {
+        int before = deathStack.Count;
         var result = new List<DeathEntry>(deathStack);
         deathStack.Clear();
+        Log.Message($"[StoryMaker] PopAllDeaths: 出栈 {result.Count} 条死亡 (清空前深度={before})");
         return result;
     }
 

@@ -1,22 +1,24 @@
 using Verse;
 using StoryMaker.Snapshot;
+using StoryMaker.Core;
 
 namespace StoryMaker.Schedule;
 
 public static class EventScheduler
 {
-    // 用于检测新游戏/读档，触发事件栈清空
+    // 用于检测新游戏/读档，触发事件栈清空和 contextVersion 递增
     private static int lastGameStartAbsTick = -1;
 
     public static void OnTick(int curTick)
     {
         // 检测新游戏/读档（gameStartAbsTick 每次新游戏/读档后都会变化）
-        // 放在非60000倍数的tick也会执行，确保尽早清空
+        // 递增 contextVersion 以丢弃陈旧 HTTP 回调，但不清空事件栈。
+        // 事件栈由每次快照时的 PopAll 自然消耗，Phase 4 序列化将解决跨存档持久化。
         if (lastGameStartAbsTick != Find.TickManager.gameStartAbsTick)
         {
             lastGameStartAbsTick = Find.TickManager.gameStartAbsTick;
-            IncidentEventStack.ClearAll();
-            Log.Message($"[StoryMaker] 检测到新游戏/读档，事件栈已清空 (gameStartAbsTick={lastGameStartAbsTick})");
+            StoryMakerState.Instance.contextVersion++;
+            Log.Message($"[StoryMaker] 检测到新游戏/读档, contextVersion={StoryMakerState.Instance.contextVersion} (gameStartAbsTick={lastGameStartAbsTick})");
         }
 
         // Phase 1: 每游戏天采集一次快照并输出到日志

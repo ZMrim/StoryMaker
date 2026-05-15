@@ -102,6 +102,16 @@
         <Compile Include="Core\StoryMakerSettings.cs"/>
         <Compile Include="Core\StoryMakerState.cs"/>
         <Compile Include="Core\StoryMakerExpose.cs"/>
+        <Compile Include="LLM\AIProviderDef.cs"/>
+        <Compile Include="LLM\AIProviderRegistry.cs"/>
+        <Compile Include="LLM\ChatMessage.cs"/>
+        <Compile Include="LLM\AIChatServiceAsync.cs"/>
+        <Compile Include="LLM\ThinkingModeAdapter.cs"/>
+        <Compile Include="Prompt\PromptInjector.cs"/>
+        <Compile Include="Prompt\PromptTemplates.cs"/>
+        <Compile Include="Prompt\PromptBuilder.cs"/>
+        <Compile Include="Debug\DebugLogger.cs"/>
+        <Compile Include="Management\StoryMakerManager.cs"/>
         <Compile Include="Snapshot\ISnapshotField.cs"/>
         <Compile Include="Snapshot\GameStateSnapshot.cs"/>
         <Compile Include="Snapshot\SnapshotCollector.cs"/>

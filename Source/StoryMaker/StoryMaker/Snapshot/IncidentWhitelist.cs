@@ -53,6 +53,8 @@ public static class IncidentWhitelist
         Log.Message("[StoryMaker] ── 白名单输出完毕 ──");
     }
 
+    public static int Count => whitelist.Count;
+
     public static bool IsWhitelisted(string defName) => whitelist.ContainsKey(defName);
 
     public static string GetCategory(string defName)
@@ -65,5 +67,14 @@ public static class IncidentWhitelist
     {
         labels.TryGetValue(defName, out var label);
         return label ?? defName;
+    }
+
+    // 按 category 分组返回事件 defName 列表，供 PromptBuilder 构建事件清单
+    public static Dictionary<string, List<string>> GetCategorizedEvents()
+    {
+        return whitelist
+            .GroupBy(kv => kv.Value)
+            .OrderBy(g => g.Key)
+            .ToDictionary(g => g.Key, g => g.Select(kv => kv.Key).OrderBy(n => n).ToList());
     }
 }

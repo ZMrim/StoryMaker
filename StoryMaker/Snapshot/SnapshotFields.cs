@@ -74,7 +74,6 @@ class SnapshotField_FoodDays : ISnapshotField
             colonistCount += map.mapPawns.FreeColonistsCount;
         }
 
-        // 成年殖民者每天消耗约 1.6 营养（2 顿正餐 × 0.9）
         float dailyConsumption = colonistCount * 1.6f;
         if (dailyConsumption <= 0f) return 999f;
         return totalNutrition / dailyConsumption;
@@ -147,7 +146,6 @@ class SnapshotField_FactionRelations : ISnapshotField
         {
             if (faction == playerFaction || faction.IsPlayer || faction.Hidden)
                 continue;
-            // 排除机械族和虫族——它们始终是固定敌对，对叙事无参考价值
             if (faction.def == FactionDefOf.Mechanoid || faction.def == FactionDefOf.Insect)
                 continue;
 
@@ -162,67 +160,27 @@ class SnapshotField_FactionRelations : ISnapshotField
     }
 }
 
-// ── 近期事件字段 ──
+// ── 近期事件字段（从 Incident 栈消费）──
 
 class SnapshotField_RecentEvents : ISnapshotField
 {
     public string Key => "recentEvents";
     public bool IncludeInLowTokenMode => false;
-
-    private static HashSet<int> extractedLetterIds = new();
-    private const int MaxRecentEvents = 10;
-    private const int LookbackTicks = 300000; // 5 天
-
     public object Collect()
     {
-        var result = new List<RecentEventEntry>();
-        int curTick = Find.TickManager.TicksGame;
-        var archive = Find.Archive;
-        if (archive == null) return result;
-
-        var letters = archive.ArchivablesListForReading
-            .OfType<Letter>()
-            .Where(l => l.arrivalTick >= curTick - LookbackTicks
-                     && l.arrivalTick <= curTick)
-            .OrderByDescending(l => l.arrivalTick)
-            .ToList();
-
-        int count = 0;
-        foreach (var letter in letters)
-        {
-            if (count >= MaxRecentEvents) break;
-            if (extractedLetterIds.Contains(letter.ID)) continue;
-            if (!IsNarrativelySignificant(letter)) continue;
-
-            extractedLetterIds.Add(letter.ID);
-            string labelText = letter.Label.ToString();
-            if (string.IsNullOrEmpty(labelText))
-                labelText = letter.def?.label ?? "Unknown";
-            result.Add(new RecentEventEntry
-            {
-                typeLabel = labelText,
-                // arrivalTick 是游戏内tick（从殖民地建立开始计数），除以60000得到天数
-                day = letter.arrivalTick / 60000,
-                result = "触发"
-            });
-            count++;
-        }
-
-        CleanupExtractedIds(letters);
-        return result;
+        return IncidentEventStack.PopAllIncidents();
     }
+}
 
-    private static bool IsNarrativelySignificant(Letter letter)
-    {
-        // Phase 1: 粗糙过滤，Phase 3 结合 LetterDef 精确判断
-        if (letter.def == LetterDefOf.NeutralEvent) return false;
-        return true;
-    }
+// ── 近期死亡字段（从 Death 栈消费）──
 
-    private static void CleanupExtractedIds(List<Letter> currentLetters)
+class SnapshotField_RecentDeaths : ISnapshotField
+{
+    public string Key => "recentDeaths";
+    public bool IncludeInLowTokenMode => false;
+    public object Collect()
     {
-        var currentIds = new HashSet<int>(currentLetters.Select(l => l.ID));
-        extractedLetterIds.RemoveWhere(id => !currentIds.Contains(id));
+        return IncidentEventStack.PopAllDeaths();
     }
 }
 

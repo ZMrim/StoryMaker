@@ -37,8 +37,11 @@ public static class SnapshotSerializer
         // faction_relations
         WriteFactionRelations(sb, snapshot.factionRelations);
 
-        // recent_events
+        // recent_events (from Incident stack)
         WriteRecentEvents(sb, snapshot.recentEvents);
+
+        // recent_deaths (from Death letter stack)
+        WriteRecentDeaths(sb, snapshot.recentDeaths);
 
         // deviation_report
         WriteDeviationReport(sb, snapshot.deviationReport);
@@ -71,7 +74,22 @@ public static class SnapshotSerializer
             {
                 var re = list[i];
                 string comma = i < list.Count - 1 ? "," : "";
-                sb.AppendLine($"    {{ \"type_label\": \"{Escape(re.typeLabel)}\", \"day\": {re.day}, \"result\": \"{Escape(re.result)}\" }}{comma}");
+                sb.AppendLine($"    {{ \"type\": \"{Escape(re.type)}\", \"category\": \"{Escape(re.category)}\" }}{comma}");
+            }
+        }
+        sb.AppendLine("  ],");
+    }
+
+    private static void WriteRecentDeaths(StringBuilder sb, List<DeathEntry> list)
+    {
+        sb.AppendLine("  \"recent_deaths\": [");
+        if (list != null && list.Count > 0)
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                var de = list[i];
+                string comma = i < list.Count - 1 ? "," : "";
+                sb.AppendLine($"    {{ \"pawn_name\": \"{Escape(de.pawnName)}\" }}{comma}");
             }
         }
         sb.AppendLine("  ],");

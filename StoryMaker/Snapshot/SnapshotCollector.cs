@@ -21,6 +21,7 @@ public static class SnapshotCollector
         fields.Add(new SnapshotField_Temperature());
         fields.Add(new SnapshotField_FactionRelations());
         fields.Add(new SnapshotField_RecentEvents());
+        fields.Add(new SnapshotField_RecentDeaths());
         fields.Add(new SnapshotField_DeviationReport());
     }
 
@@ -32,6 +33,7 @@ public static class SnapshotCollector
             toTick = toTick,
             factionRelations = new List<FactionRelationEntry>(),
             recentEvents = new List<RecentEventEntry>(),
+            recentDeaths = new List<DeathEntry>(),
             deviationReport = new List<DeviationEntry>()
         };
 
@@ -69,6 +71,7 @@ public static class SnapshotCollector
             case "currentTemperature": snapshot.currentTemperature = (float)value; break;
             case "factionRelations": snapshot.factionRelations = (List<FactionRelationEntry>)value; break;
             case "recentEvents": snapshot.recentEvents = (List<RecentEventEntry>)value; break;
+            case "recentDeaths": snapshot.recentDeaths = (List<DeathEntry>)value; break;
             case "deviationReport": snapshot.deviationReport = (List<DeviationEntry>)value; break;
         }
     }

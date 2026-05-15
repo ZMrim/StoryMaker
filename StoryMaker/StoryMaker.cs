@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using Verse;
 
@@ -8,10 +9,14 @@ public class StoryMaker : Mod
     public static StoryMaker Instance { get; private set; }
     public StoryMakerSettings Settings { get; private set; }
 
+    // 种族白名单的逗号分隔缓存（UI 用）
+    private string deathRaceWhitelistBuffer = "";
+
     public StoryMaker(ModContentPack content) : base(content)
     {
         Instance = this;
         Settings = GetSettings<StoryMakerSettings>();
+        deathRaceWhitelistBuffer = string.Join(", ", Settings.deathRaceWhitelist ?? new());
         Log.Message("[StoryMaker] Mod 已加载，等待叙事者激活。");
     }
 
@@ -37,6 +42,18 @@ public class StoryMaker : Mod
         // maxRetransmissions
         listing.Label($"最大重传次数: {Settings.maxRetransmissions}");
         Settings.maxRetransmissions = (int)listing.Slider(Settings.maxRetransmissions, 0f, 5f);
+
+        listing.Gap();
+
+        // 死亡记录种族白名单
+        listing.Label("死亡记录种族白名单（defName，逗号分隔，默认 Human）:");
+        Rect raceRect = listing.GetRect(Text.LineHeight * 3);
+        deathRaceWhitelistBuffer = Widgets.TextArea(raceRect, deathRaceWhitelistBuffer);
+        Settings.deathRaceWhitelist = deathRaceWhitelistBuffer
+            .Split(',')
+            .Select(s => s.Trim())
+            .Where(s => !string.IsNullOrEmpty(s))
+            .ToList();
 
         listing.Gap();
 

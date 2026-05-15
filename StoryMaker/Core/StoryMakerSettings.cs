@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Verse;
 
 namespace StoryMaker;
@@ -13,6 +14,9 @@ public class StoryMakerSettings : ModSettings
     // 玩家个性化
     public string playerPersonality = "";
 
+    // 死亡记录种族白名单（defName 列表，如 Human, Ratkin 等）
+    public List<string> deathRaceWhitelist = new() { "Human" };
+
     // 调试选项
     public bool lowTokenMode = false;
     public bool debugMode = false;
@@ -27,6 +31,7 @@ public class StoryMakerSettings : ModSettings
         Scribe_Values.Look(ref timeoutSeconds, "timeoutSeconds", 60f);
         Scribe_Values.Look(ref maxRetransmissions, "maxRetransmissions", 2);
         Scribe_Values.Look(ref playerPersonality, "playerPersonality", "");
+        Scribe_Collections.Look(ref deathRaceWhitelist, "deathRaceWhitelist", LookMode.Value);
         Scribe_Values.Look(ref lowTokenMode, "lowTokenMode", false);
         Scribe_Values.Look(ref debugMode, "debugMode", false);
     }

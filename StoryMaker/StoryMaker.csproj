@@ -109,6 +109,10 @@
         <Compile Include="Snapshot\SnapshotFields.cs"/>
         <Compile Include="Schedule\EventScheduler.cs"/>
         <Compile Include="HarmonyPatches.cs"/>
+        <Compile Include="Patch_IncidentTryExecute.cs"/>
+        <Compile Include="Patch_DeathLetter.cs"/>
+        <Compile Include="Snapshot\IncidentWhitelist.cs"/>
+        <Compile Include="Snapshot\IncidentEventStack.cs"/>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

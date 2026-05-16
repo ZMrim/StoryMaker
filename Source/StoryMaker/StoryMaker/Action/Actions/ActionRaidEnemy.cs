@@ -56,7 +56,18 @@ public class ActionRaidEnemy : IActionHandler
 
         try
         {
-            incidentDef.Worker.TryExecute(parms);
+            if (!incidentDef.Worker.TryExecute(parms))
+            {
+                Log.Warning($"[StoryMaker] RaidEnemy: 自定义参数执行失败 (faction={parms.faction?.Name ?? "自动"}, points={parms.points:F0}, strategy={parms.raidStrategy?.defName ?? "自动"})，尝试原版默认参数...");
+                IncidentParms fallbackParms = StorytellerUtility.DefaultParmsNow(incidentDef.category, map);
+                if (!incidentDef.Worker.TryExecute(fallbackParms))
+                {
+                    Log.Error($"[StoryMaker] RaidEnemy: 原版默认参数也执行失败");
+                    return false;
+                }
+                Log.Message($"[StoryMaker] RaidEnemy: 原版默认参数执行成功 (回退)");
+                return true;
+            }
             Log.Message($"[StoryMaker] RaidEnemy: faction={parms.faction?.Name ?? "自动"}, points={originalPoints:F0}×{intensity:F2}={parms.points:F0}, strategy={parms.raidStrategy?.defName ?? "自动"}");
             return true;
         }

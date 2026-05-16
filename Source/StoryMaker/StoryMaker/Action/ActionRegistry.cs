@@ -96,7 +96,18 @@ public static class ActionRegistry
 
         try
         {
-            def.Worker.TryExecute(parms);
+            if (!def.Worker.TryExecute(parms))
+            {
+                Log.Warning($"[StoryMaker] 通用执行: 自定义参数失败 ({evt.event_type}, intensity={multiplier:F2})，尝试原版默认参数...");
+                var fallbackParms = StorytellerUtility.DefaultParmsNow(def.category, Find.CurrentMap ?? Find.AnyPlayerHomeMap);
+                if (!def.Worker.TryExecute(fallbackParms))
+                {
+                    Log.Error($"[StoryMaker] 通用执行: 原版默认参数也执行失败 ({evt.event_type})");
+                    return false;
+                }
+                Log.Message($"[StoryMaker] 通用执行: 原版默认参数成功 (回退, {evt.event_type})");
+                return true;
+            }
             Log.Message($"[StoryMaker] 通用执行: {evt.event_type} (intensity={multiplier:F2})");
             return true;
         }

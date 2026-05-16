@@ -28,7 +28,11 @@ public class ActionPsychicDrone : IActionHandler
 
         try
         {
-            incidentDef.Worker.TryExecute(parms);
+            if (!incidentDef.Worker.TryExecute(parms))
+            {
+                Log.Warning($"[StoryMaker] PsychicDrone: TryExecute 返回 false, {evt.event_type}");
+                return false;
+            }
             Log.Message($"[StoryMaker] PsychicDrone: {evt.event_type}");
             return true;
         }

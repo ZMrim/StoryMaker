@@ -22,6 +22,7 @@ request_range: {from_tick,to_tick} 规划时间范围
 1天=60000tick。scheduled_tick必为2500整数倍(精确到小时)。
 intensity_multiplier 0.5~2.0。勿在文本中提数值。
 RaidEnemy可选raid_strategy: ImmediateAttack(标准进攻)/StageThenAttack(集结待攻)/Siege(迫击炮围城)/ImmediateAttackSappers(工兵)/ImmediateAttackBreaching(破墙)/ImmediateAttackSmart(战术)/ImmediateAttackBreachingSmart(智能破墙)。不填则由系统自动选。
+商队/轨道商可选trader_kind: Caravan_Neolithic/Outlander_BulkGoods(杂货)/WarMerchant(战争)/Slaver(奴隶)/ShamanMerchant(萨满)/Exotic(珍品)/CombatSupplier(战斗),Empire_Caravan_TraderGeneral(帝国)/TributeCollector(贡品),Visitor_Neolithic/Outlander_Standard(访客),Orbital_BulkGoods(轨道杂货)/CombatSupplier(战斗)/Exotic(珍品)/PirateMerchant(海盗)/Empire(帝国)。不填则随机。
 每窗口0~4个事件。参考recent_events避免重复同类。
 empty_plan可声明空窗口(连续多次会被警告)。
 

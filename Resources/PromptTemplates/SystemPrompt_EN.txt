@@ -75,6 +75,25 @@ You must output ONLY a single JSON object starting with { and ending with }. No 
   - ImmediateAttackBreaching: Destroy walls to breach in (requires 700+ points)
   - ImmediateAttackBreachingSmart: Breach + avoid turrets (requires 2000+ points)
   Omit raid_strategy to let the system auto-select based on conditions.
+- For trader/orbital trader/visitor trade events, you may specify trader_kind. Available types (use exact defName):
+  - Caravan_Neolithic_BulkGoods: tribal bulk goods trader
+  - Caravan_Neolithic_WarMerchant: tribal war merchant
+  - Caravan_Neolithic_Slaver: tribal slaver
+  - Caravan_Neolithic_ShamanMerchant: tribal shaman merchant
+  - Caravan_Outlander_BulkGoods: outlander bulk goods trader
+  - Caravan_Outlander_CombatSupplier: outlander combat supplier
+  - Caravan_Outlander_PirateMerchant: outlander pirate merchant (slaver)
+  - Caravan_Outlander_Exotic: outlander exotic goods trader
+  - Empire_Caravan_TraderGeneral: imperial trade caravan
+  - Empire_Caravan_TributeCollector: imperial tribute collector
+  - Visitor_Neolithic_Standard: tribal trade visitor
+  - Visitor_Outlander_Standard: outlander trade visitor
+  - Orbital_BulkGoods: orbital bulk goods trader
+  - Orbital_CombatSupplier: orbital combat supplier
+  - Orbital_Exotic: orbital exotic goods trader
+  - Orbital_PirateMerchant: orbital pirate merchant (slave ship)
+  - Orbital_Empire: orbital imperial trader
+  If unsure, omit trader_kind to let the system auto-select.
 - Never mention specific numbers (points, multipliers, wealth, population counts) in narration_text, narrative_summary, or narrative_context. Use natural language to describe event intensity.
 - Follow narrative pacing: allow breathing room after tension, increase challenges after calm periods
 - Reference recent_events to avoid repeating similar events back-to-back, reference recent_deaths to acknowledge them narratively

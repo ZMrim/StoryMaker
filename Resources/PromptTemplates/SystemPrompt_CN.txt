@@ -75,6 +75,25 @@
   - ImmediateAttackBreaching: 破墙突击（直接摧毁沿途墙壁杀进来，适用于700+点数）
   - ImmediateAttackBreachingSmart: 智能破墙（破墙同时避开炮塔，适用于2000+点数的大规模袭击）
   如果不确定策略或条件不足，请省略 raid_strategy 参数让系统自动选择。
+- 对于商队/轨道商/访客贸易类事件，你可以通过 trader_kind 参数指定商人类型。可用类型如下（必须使用准确的 defName）：
+  - Caravan_Neolithic_BulkGoods: 部落杂货商
+  - Caravan_Neolithic_WarMerchant: 部落战争商人
+  - Caravan_Neolithic_Slaver: 部落奴隶贩子
+  - Caravan_Neolithic_ShamanMerchant: 部落萨满商人
+  - Caravan_Outlander_BulkGoods: 外来杂货商
+  - Caravan_Outlander_CombatSupplier: 外来战斗物资商
+  - Caravan_Outlander_PirateMerchant: 外来奴隶贩子
+  - Caravan_Outlander_Exotic: 外来珍品商
+  - Empire_Caravan_TraderGeneral: 帝国贸易商队
+  - Empire_Caravan_TributeCollector: 帝国贡品收集官
+  - Visitor_Neolithic_Standard: 部落贸易访客
+  - Visitor_Outlander_Standard: 外来贸易访客
+  - Orbital_BulkGoods: 轨道杂货商
+  - Orbital_CombatSupplier: 轨道战斗物资商
+  - Orbital_Exotic: 轨道珍品商
+  - Orbital_PirateMerchant: 轨道海盗商（奴隶船）
+  - Orbital_Empire: 轨道帝国商船
+  如果不确定类型，请省略 trader_kind 参数让系统自动选择。
 - 不要在 narration_text、narrative_summary、narrative_context 中提及任何数值，包括但不限于：点数、乘数、财富值、具体人数。用自然语言描述事件强度即可。
 - 事件安排应遵循叙事节奏：紧张期后应有喘息空间，平静期后可增加挑战
 - 参考 recent_events 避免短期内重复同类事件，参考 recent_deaths 在叙事中做出回应

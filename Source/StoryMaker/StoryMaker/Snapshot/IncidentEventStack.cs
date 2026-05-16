@@ -52,4 +52,16 @@ public static class IncidentEventStack
         incidentStack.Clear();
         deathStack.Clear();
     }
+
+    // 存档序列化（由 StoryMakerExpose 调用）
+    public static void ExposeData()
+    {
+        Scribe_Collections.Look(ref incidentStack, "incidentStack", LookMode.Deep);
+        Scribe_Collections.Look(ref deathStack, "deathStack", LookMode.Deep);
+        if (Scribe.mode == LoadSaveMode.PostLoadInit)
+        {
+            incidentStack ??= new List<RecentEventEntry>();
+            deathStack ??= new List<DeathEntry>();
+        }
+    }
 }

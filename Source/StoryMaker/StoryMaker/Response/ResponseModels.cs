@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Verse;
 
 namespace StoryMaker.Response;
 
@@ -20,12 +21,13 @@ public class PlanRange
     public int to_tick;
 }
 
-public class PlannedEvent
+public class PlannedEvent : IExposable
 {
     public string event_id;
     public int scheduled_tick;
+    public int generated_at_world_tick;  // LLM 生成时的世界 tick，用于读档过期检测
     public string event_type;
-    public Dictionary<string, string> parameters;  // 全部值存为字符串，消费者自行解析
+    public Dictionary<string, string> parameters;
     public string narration_text;
     public string narrative_context;
 
@@ -57,6 +59,37 @@ public class PlannedEvent
                 return result;
         }
         return defaultValue;
+    }
+
+    public void ExposeData()
+    {
+        Scribe_Values.Look(ref event_id, "event_id");
+        Scribe_Values.Look(ref scheduled_tick, "scheduled_tick");
+        Scribe_Values.Look(ref generated_at_world_tick, "generated_at_world_tick");
+        Scribe_Values.Look(ref event_type, "event_type");
+        Scribe_Values.Look(ref narration_text, "narration_text");
+        Scribe_Values.Look(ref narrative_context, "narrative_context");
+
+        // Dictionary<string, string> → 两个平行 List<string>
+        List<string> paramKeys = null;
+        List<string> paramValues = null;
+        if (Scribe.mode == LoadSaveMode.Saving && parameters != null)
+        {
+            paramKeys = new List<string>(parameters.Keys);
+            paramValues = new List<string>(parameters.Values);
+        }
+        Scribe_Collections.Look(ref paramKeys, "paramKeys", LookMode.Value);
+        Scribe_Collections.Look(ref paramValues, "paramValues", LookMode.Value);
+        if (Scribe.mode == LoadSaveMode.PostLoadInit)
+        {
+            parameters = new Dictionary<string, string>();
+            if (paramKeys != null && paramValues != null)
+            {
+                int count = paramKeys.Count < paramValues.Count ? paramKeys.Count : paramValues.Count;
+                for (int i = 0; i < count; i++)
+                    parameters[paramKeys[i]] = paramValues[i];
+            }
+        }
     }
 }
 

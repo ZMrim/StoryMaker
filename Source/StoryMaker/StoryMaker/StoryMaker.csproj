@@ -102,6 +102,7 @@
         <Compile Include="Core\StoryMakerSettings.cs"/>
         <Compile Include="Core\StoryMakerState.cs"/>
         <Compile Include="Core\StoryMakerExpose.cs"/>
+        <Compile Include="Core\StoryMakerWorldComponent.cs"/>
         <Compile Include="LLM\AIProviderDef.cs"/>
         <Compile Include="LLM\AIProviderRegistry.cs"/>
         <Compile Include="LLM\ChatMessage.cs"/>
@@ -119,6 +120,8 @@
         <Compile Include="Snapshot\SnapshotSerializer.cs"/>
         <Compile Include="Snapshot\SnapshotFields.cs"/>
         <Compile Include="Schedule\EventScheduler.cs"/>
+        <Compile Include="Schedule\RequestLock.cs"/>
+        <Compile Include="Schedule\DegradationHandler.cs"/>
         <Compile Include="HarmonyPatches.cs"/>
         <Compile Include="Patch_IncidentTryExecute.cs"/>
         <Compile Include="Patch_DeathLetter.cs"/>
@@ -131,6 +134,7 @@
         <Compile Include="Response\SchemaGuard.cs"/>
         <Compile Include="Response\EventGuard.cs"/>
         <Compile Include="Response\FormatCorrectionMessages.cs"/>
+        <Compile Include="Response\EmptyPlanGuard.cs"/>
         <Compile Include="Schedule\EventQueue.cs"/>
         <Compile Include="Action\IActionHandler.cs"/>
         <Compile Include="Action\ActionRegistry.cs"/>

@@ -70,6 +70,25 @@ public static class ActionExecutor
         return result;
     }
 
+    // 追加失败事件（读档时从过期事件生成 deviation_report）
+    public static void AddFailedEvent(string eventId, string eventType, string reason)
+    {
+        FailedEvents.Add(new DeviationEntry
+        {
+            eventId = eventId,
+            eventType = eventType,
+            failReason = reason
+        });
+    }
+
+    // 存档序列化（由 StoryMakerExpose 调用）
+    public static void ExposeData()
+    {
+        Scribe_Collections.Look(ref FailedEvents, "failedEvents", LookMode.Deep);
+        if (Scribe.mode == LoadSaveMode.PostLoadInit)
+            FailedEvents ??= new List<DeviationEntry>();
+    }
+
     private static void DisplayNarrationLetter(PlannedEvent evt)
     {
         try

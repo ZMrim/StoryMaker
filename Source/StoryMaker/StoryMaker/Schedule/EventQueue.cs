@@ -50,4 +50,15 @@ public class EventQueue
     {
         return new List<PlannedEvent>(events);
     }
+
+    // 存档序列化（由 StoryMakerExpose 调用）
+    public void ExposeData()
+    {
+        Scribe_Collections.Look(ref events, "eventQueueItems", LookMode.Deep);
+        if (Scribe.mode == LoadSaveMode.PostLoadInit)
+        {
+            events ??= new List<PlannedEvent>();
+            events.Sort((a, b) => a.scheduled_tick.CompareTo(b.scheduled_tick));
+        }
+    }
 }

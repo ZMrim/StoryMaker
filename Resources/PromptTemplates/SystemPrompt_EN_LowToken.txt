@@ -22,6 +22,7 @@ request_range: {from_tick,to_tick} Planning window
 1 day=60000 ticks. scheduled_tick must be multiple of 2500 (hour precision).
 intensity_multiplier 0.5~2.0. Never mention numbers in narrative text.
 RaidEnemy optional raid_strategy: ImmediateAttack(standard)/StageThenAttack(prepare)/Siege(mortar)/ImmediateAttackSappers(tunnel)/ImmediateAttackBreaching(destroy walls)/ImmediateAttackSmart(avoid turrets)/ImmediateAttackBreachingSmart(breach+smart). Omit for auto-select.
+Trader/orbital optional trader_kind: Caravan_Neolithic/Outlander_BulkGoods/WarMerchant/Slaver/ShamanMerchant/Exotic/CombatSupplier,Empire_Caravan_TraderGeneral/TributeCollector,Visitor_Neolithic/Outlander_Standard,Orbital_BulkGoods/CombatSupplier/Exotic/PirateMerchant/Empire. Omit for auto-select.
 0~4 events per window. Avoid repeats based on recent_events.
 empty_plan for deliberate empty windows (warned if consecutive).
 

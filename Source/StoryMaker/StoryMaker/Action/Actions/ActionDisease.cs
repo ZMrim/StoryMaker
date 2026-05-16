@@ -43,7 +43,18 @@ public class ActionDisease : IActionHandler
 
         try
         {
-            incidentDef.Worker.TryExecute(parms);
+            if (!incidentDef.Worker.TryExecute(parms))
+            {
+                Log.Warning($"[StoryMaker] Disease: 自定义参数执行失败 ({evt.event_type}, points={parms.points:F0})，尝试原版默认参数...");
+                IncidentParms fallbackParms = StorytellerUtility.DefaultParmsNow(incidentDef.category, map);
+                if (!incidentDef.Worker.TryExecute(fallbackParms))
+                {
+                    Log.Error($"[StoryMaker] Disease: 原版默认参数也执行失败 ({evt.event_type})");
+                    return false;
+                }
+                Log.Message($"[StoryMaker] Disease: 原版默认参数执行成功 (回退, {evt.event_type})");
+                return true;
+            }
             Log.Message($"[StoryMaker] Disease: {evt.event_type}, points={parms.points:F0} (intensity={intensity:F2})");
             return true;
         }

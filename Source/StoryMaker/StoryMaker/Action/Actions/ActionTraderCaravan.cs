@@ -41,7 +41,18 @@ public class ActionTraderCaravan : IActionHandler
 
         try
         {
-            incidentDef.Worker.TryExecute(parms);
+            if (!incidentDef.Worker.TryExecute(parms))
+            {
+                Log.Warning($"[StoryMaker] TraderCaravan: 自定义参数执行失败 (faction={parms.faction?.Name ?? "自动"}, trader={parms.traderKind?.defName ?? "自动"})，尝试原版默认参数...");
+                IncidentParms fallbackParms = StorytellerUtility.DefaultParmsNow(incidentDef.category, map);
+                if (!incidentDef.Worker.TryExecute(fallbackParms))
+                {
+                    Log.Error($"[StoryMaker] TraderCaravan: 原版默认参数也执行失败");
+                    return false;
+                }
+                Log.Message($"[StoryMaker] TraderCaravan: 原版默认参数执行成功 (回退)");
+                return true;
+            }
             Log.Message($"[StoryMaker] TraderCaravan: faction={parms.faction?.Name ?? "自动"}, trader={parms.traderKind?.defName ?? "自动"}");
             return true;
         }

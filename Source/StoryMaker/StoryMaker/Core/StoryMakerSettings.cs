@@ -3,6 +3,16 @@ using Verse;
 
 namespace StoryMaker;
 
+public enum DebugSimulationMode
+{
+    None,
+    Timeout,           // 所有请求超时（无回调，由实时超时检测触发重传）
+    ConnectionError,   // 所有请求返回 connection_error
+    BadJson,           // 返回不可解析的文本（触发 ParseGuard 修正）
+    SchemaViolation,   // 返回缺少 plan_range 的 JSON（触发 SchemaGuard 修正）
+    EventViolation     // 返回包含无效事件的 JSON（触发 EventGuard 过滤）
+}
+
 public class StoryMakerSettings : ModSettings
 {
     // TCP 协议参数
@@ -30,6 +40,7 @@ public class StoryMakerSettings : ModSettings
     // 调试选项
     public bool lowTokenMode = false;
     public bool debugMode = false;
+    public DebugSimulationMode simulationMode = DebugSimulationMode.None;
 
     public int BufferTicks => bufferDays * 60000;
     public int PlanWindowTicks => planWindowDays * 60000;
@@ -60,6 +71,7 @@ public class StoryMakerSettings : ModSettings
         Scribe_Values.Look(ref enableThinking, "enableThinking", true);
         Scribe_Values.Look(ref lowTokenMode, "lowTokenMode", false);
         Scribe_Values.Look(ref debugMode, "debugMode", false);
+        Scribe_Values.Look(ref simulationMode, "simulationMode", DebugSimulationMode.None);
 
         // Phase 2 API 配置
         Scribe_Values.Look(ref provider, "provider", AIProvider.DeepSeek);

@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using Verse;
 using StoryMaker.Core;
+using StoryMaker.Schedule;
 
 namespace StoryMaker;
 
@@ -33,10 +34,10 @@ public class AIChatServiceAsync : MonoBehaviour
     }
 
     // 回调队列：在 Update() 中统一执行，保证主线程安全
-    private readonly Queue<Action> callbackQueue = new();
+    private readonly Queue<System.Action> callbackQueue = new();
     private readonly object queueLock = new();
 
-    public void EnqueueCallback(Action action)
+    public void EnqueueCallback(System.Action action)
     {
         lock (queueLock)
         {
@@ -46,9 +47,12 @@ public class AIChatServiceAsync : MonoBehaviour
 
     void Update()
     {
+        // 实时超时检测（不受游戏暂停影响）
+        EventScheduler.CheckRealtimeTimeout();
+
         while (true)
         {
-            Action action;
+            System.Action action;
             lock (queueLock)
             {
                 if (callbackQueue.Count == 0) break;
@@ -64,8 +68,8 @@ public class AIChatServiceAsync : MonoBehaviour
     /// </summary>
     public void SendRequest(
         List<ChatMessage> messages,
-        Action<string> onSuccess,
-        Action<string, string> onError)
+        System.Action<string> onSuccess,
+        System.Action<string, string> onError)
     {
         StartCoroutine(ProcessRequest(messages, onSuccess, onError, attempt: 0));
     }

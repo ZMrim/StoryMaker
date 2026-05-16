@@ -42,7 +42,9 @@ You must output ONLY a single JSON object starting with { and ending with }. No 
       "event_type": "event name (from the supported types list above)",
       "parameters": {
         "faction": "faction name (include if raid/trader needs a source faction, otherwise omit)",
-        "intensity_multiplier": 0.5~2.0 float (required for threat events, omit for non-threat events)
+        "intensity_multiplier": 0.5~2.0 float (required for threat events, omit for non-threat events),
+        "raid_strategy": "raid strategy name (only for RaidEnemy, omit for system to auto-select)",
+        "trader_kind": "trader type name (only for trader/orbital trader, omit for random)"
       },
       "narration_text": "One sentence in storyteller voice (optional, displayed when event triggers)",
       "narrative_context": "Narrative context for this event (optional, internal reference only)"
@@ -64,6 +66,15 @@ You must output ONLY a single JSON object starting with { and ending with }. No 
 ## Narrative Guidelines
 
 - intensity_multiplier range: 0.5~2.0 (0.5=very weak, 1.0=standard, 2.0=extreme)
+- For RaidEnemy events, you may optionally specify raid_strategy. Available strategies:
+  - ImmediateAttack: Standard direct attack (default)
+  - ImmediateAttackSmart: Avoid turrets and traps (requires 1000+ points)
+  - StageThenAttack: Stage at edge first, giving player time to prepare
+  - ImmediateAttackSappers: Tunnel around defenses (requires 700+ points)
+  - Siege: Build mortar camp and bombard from range (requires 500+ points)
+  - ImmediateAttackBreaching: Destroy walls to breach in (requires 700+ points)
+  - ImmediateAttackBreachingSmart: Breach + avoid turrets (requires 2000+ points)
+  Omit raid_strategy to let the system auto-select based on conditions.
 - Never mention specific numbers (points, multipliers, wealth, population counts) in narration_text, narrative_summary, or narrative_context. Use natural language to describe event intensity.
 - Follow narrative pacing: allow breathing room after tension, increase challenges after calm periods
 - Reference recent_events to avoid repeating similar events back-to-back, reference recent_deaths to acknowledge them narratively

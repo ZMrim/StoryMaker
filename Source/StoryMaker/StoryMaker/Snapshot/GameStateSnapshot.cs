@@ -24,12 +24,13 @@ public class FactionRelationEntry
 {
     public string name;
     public int relation;
+    public string relationKind;  // Hostile / Neutral / Ally
 }
 
-// 近期发生的 Incident — 仅输出事件名和类别
+// 近期发生的 Incident — 输出 defName 和 category，与 LLM 回复的 event_type 保持一致
 public class RecentEventEntry
 {
-    public string type;
+    public string event_type;  // defName，如 RaidEnemy、PsychicDrone
     public string category;
 }
 

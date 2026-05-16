@@ -152,7 +152,8 @@ class SnapshotField_FactionRelations : ISnapshotField
             result.Add(new FactionRelationEntry
             {
                 name = faction.Name,
-                relation = faction.GoodwillWith(playerFaction)
+                relation = faction.GoodwillWith(playerFaction),
+                relationKind = faction.PlayerRelationKind.ToString()
             });
         }
 

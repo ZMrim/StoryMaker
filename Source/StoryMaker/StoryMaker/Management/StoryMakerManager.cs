@@ -1,5 +1,7 @@
 using System;
 using StoryMaker.Core;
+using StoryMaker.Response;
+using StoryMaker.Schedule;
 using StoryMaker.Snapshot;
 using Verse;
 
@@ -44,16 +46,57 @@ public static class StoryMakerManager
 
         // Debug 日志
         int seq = DebugLogger.LogRequest(messages);
+        float sendTime = UnityEngine.Time.realtimeSinceStartup;
 
         // 发送请求
         AIChatServiceAsync.Instance.SendRequest(
             messages,
             onSuccess: (responseBody) =>
             {
-                Log.Message($"[StoryMaker] 收到回复:\n{responseBody}");
+                long elapsedMs = (long)((UnityEngine.Time.realtimeSinceStartup - sendTime) * 1000f);
+                Log.Message($"[StoryMaker] 原始回复:\n{responseBody}");
+
+                // Phase 3: 解析 + Guard 校验
+                ParseResult parseResult = ResponseParser.Parse(responseBody);
+                if (parseResult.IsSuccess)
+                {
+                    Log.Message($"[StoryMaker] === 解析成功 ===");
+                    Log.Message($"[StoryMaker] plan_range: [{parseResult.Response.plan_range.from_tick}, {parseResult.Response.plan_range.to_tick}]");
+                    Log.Message($"[StoryMaker] empty_plan: {parseResult.Response.empty_plan}");
+                    Log.Message($"[StoryMaker] narrative_summary: {parseResult.Response.narrative_summary}");
+                    Log.Message($"[StoryMaker] events 数量: {parseResult.Response.events?.Count ?? 0}");
+                    if (parseResult.Response.HasEvents)
+                    {
+                        for (int i = 0; i < parseResult.Response.events.Count; i++)
+                        {
+                            var evt = parseResult.Response.events[i];
+                            Log.Message($"[StoryMaker]   事件[{i}]: {evt.event_type} @ tick {evt.scheduled_tick} (id={evt.event_id})");
+                            if (evt.parameters != null && evt.parameters.Count > 0)
+                            {
+                                foreach (var kv in evt.parameters)
+                                    Log.Message($"[StoryMaker]     参数 {kv.Key}={kv.Value}");
+                            }
+                            if (!string.IsNullOrEmpty(evt.narration_text))
+                                Log.Message($"[StoryMaker]     叙事: {evt.narration_text}");
+                        }
+                    }
+                }
+                else
+                {
+                    Log.Warning($"[StoryMaker] === 解析失败 ===");
+                    var violation = parseResult.FirstViolation;
+                    if (violation != null)
+                    {
+                        Log.Warning($"[StoryMaker] 违规: {violation.ViolationTag} - {violation.ViolationDetail}");
+                        string correction = FormatCorrectionMessages.Build(violation);
+                        Log.Message($"[StoryMaker] 修正提示词:\n{correction}");
+                    }
+                }
+
                 if (DebugLogger.IsEnabled)
                 {
-                    DebugLogger.LogResponse(seq, responseBody, 200, 0, 1);
+                    string parsedJson = EventScheduler.ParseAndFormatResponse(responseBody);
+                    DebugLogger.LogResponse(seq, responseBody, 200, elapsedMs, 1, parsedJson);
                     DebugLogger.WriteSummary();
                 }
                 Log.Message("[StoryMaker] ===== 测试请求结束 =====");

@@ -111,6 +111,7 @@
         <Compile Include="Prompt\PromptTemplates.cs"/>
         <Compile Include="Prompt\PromptBuilder.cs"/>
         <Compile Include="Debug\DebugLogger.cs"/>
+        <Compile Include="Debug\DebugSimulator.cs"/>
         <Compile Include="Management\StoryMakerManager.cs"/>
         <Compile Include="Snapshot\ISnapshotField.cs"/>
         <Compile Include="Snapshot\GameStateSnapshot.cs"/>
@@ -123,6 +124,22 @@
         <Compile Include="Patch_DeathLetter.cs"/>
         <Compile Include="Snapshot\IncidentWhitelist.cs"/>
         <Compile Include="Snapshot\IncidentEventStack.cs"/>
+        <Compile Include="Response\ResponseModels.cs"/>
+        <Compile Include="Response\JsonExtractor.cs"/>
+        <Compile Include="Response\ResponseParser.cs"/>
+        <Compile Include="Response\ParseGuard.cs"/>
+        <Compile Include="Response\SchemaGuard.cs"/>
+        <Compile Include="Response\EventGuard.cs"/>
+        <Compile Include="Response\FormatCorrectionMessages.cs"/>
+        <Compile Include="Schedule\EventQueue.cs"/>
+        <Compile Include="Action\IActionHandler.cs"/>
+        <Compile Include="Action\ActionRegistry.cs"/>
+        <Compile Include="Action\ActionExecutor.cs"/>
+        <Compile Include="Action\Actions\ActionRaidEnemy.cs"/>
+        <Compile Include="Action\Actions\ActionTraderCaravan.cs"/>
+        <Compile Include="Action\Actions\ActionDisease.cs"/>
+        <Compile Include="Action\Actions\ActionManhunterPack.cs"/>
+        <Compile Include="Action\Actions\ActionPsychicDrone.cs"/>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

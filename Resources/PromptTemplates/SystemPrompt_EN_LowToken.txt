@@ -16,11 +16,12 @@ request_range: {from_tick,to_tick} Planning window
 {personality}
 
 ## Response Format
-{"plan_range":{"from_tick":int,"to_tick":int},"empty_plan":bool,"narrative_summary":"summary","events":[{"event_id":"id","scheduled_tick":int,"event_type":"type","parameters":{"faction":"faction(optional)","intensity_multiplier":0.5~2.0},"narration_text":"flavor","narrative_context":"context"}]}
+{"plan_range":{"from_tick":int,"to_tick":int},"empty_plan":bool,"narrative_summary":"summary","events":[{"event_id":"id","scheduled_tick":int,"event_type":"type","parameters":{"faction":"faction(optional)","intensity_multiplier":0.5~2.0,"raid_strategy":"ImmediateAttack etc(only for RaidEnemy,optional)","trader_kind":"trader type(optional)"},"narration_text":"flavor","narrative_context":"context"}]}
 
 ## Rules
 1 day=60000 ticks. scheduled_tick must be multiple of 2500 (hour precision).
 intensity_multiplier 0.5~2.0. Never mention numbers in narrative text.
+RaidEnemy optional raid_strategy: ImmediateAttack(standard)/StageThenAttack(prepare)/Siege(mortar)/ImmediateAttackSappers(tunnel)/ImmediateAttackBreaching(destroy walls)/ImmediateAttackSmart(avoid turrets)/ImmediateAttackBreachingSmart(breach+smart). Omit for auto-select.
 0~4 events per window. Avoid repeats based on recent_events.
 empty_plan for deliberate empty windows (warned if consecutive).
 

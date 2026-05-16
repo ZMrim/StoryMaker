@@ -70,7 +70,7 @@ public static class DebugLogger
         return seqNumber;
     }
 
-    public static void LogResponse(int seq, string responseBody, long httpCode, long elapsedMs, int attemptCount)
+    public static void LogResponse(int seq, string responseBody, long httpCode, long elapsedMs, int attemptCount, string parsedJson = null)
     {
         if (!IsEnabled) return;
         EnsureSessionDir();
@@ -90,6 +90,16 @@ public static class DebugLogger
         sb.AppendLine("```json");
         sb.AppendLine(responseBody);
         sb.AppendLine("```");
+
+        if (!string.IsNullOrEmpty(parsedJson))
+        {
+            sb.AppendLine();
+            sb.AppendLine("## 解析结果");
+            sb.AppendLine();
+            sb.AppendLine("```json");
+            sb.AppendLine(parsedJson);
+            sb.AppendLine("```");
+        }
 
         File.WriteAllText(path, sb.ToString(), Encoding.UTF8);
         Log.Message($"[StoryMaker] Debug 响应已保存: {filename}");

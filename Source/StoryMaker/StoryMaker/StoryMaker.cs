@@ -129,6 +129,41 @@ public class StoryMaker : Mod
         listing.CheckboxLabeled("低 Token 模式（精简 Prompt，降低 API 费用）", ref Settings.lowTokenMode);
         listing.CheckboxLabeled("开发者调试模式（保存完整请求/回复到本地）", ref Settings.debugMode);
 
+        // 错误模拟器开关
+        listing.GapLine();
+        var simModes = new List<DebugSimulationMode>
+        {
+            DebugSimulationMode.None,
+            DebugSimulationMode.Timeout,
+            DebugSimulationMode.ConnectionError,
+            DebugSimulationMode.BadJson,
+            DebugSimulationMode.SchemaViolation,
+            DebugSimulationMode.EventViolation,
+        };
+        var simLabels = new List<string>
+        {
+            "关闭",
+            "模拟超时 (Timeout)",
+            "模拟连接错误 (ConnectionError)",
+            "模拟坏JSON (BadJson)",
+            "模拟Schema违规 (SchemaViolation)",
+            "模拟Event违规 (EventViolation)",
+        };
+        int simIdx = simModes.IndexOf(Settings.simulationMode);
+        if (simIdx < 0) simIdx = 0;
+        string simLabel = "错误模拟模式: " + simLabels[simIdx];
+        if (listing.ButtonText(simLabel))
+        {
+            var menu = new List<FloatMenuOption>();
+            for (int i = 0; i < simModes.Count; i++)
+            {
+                var mode = simModes[i];
+                var label = simLabels[i];
+                menu.Add(new FloatMenuOption(label, () => Settings.simulationMode = mode));
+            }
+            Find.WindowStack.Add(new FloatMenu(menu));
+        }
+
         listing.End();
         Widgets.EndScrollView();
         Settings.Write();

@@ -59,7 +59,7 @@ public static class SnapshotSerializer
             {
                 var fr = list[i];
                 string comma = i < list.Count - 1 ? "," : "";
-                sb.AppendLine($"    {{ \"name\": \"{Escape(fr.name)}\", \"relation\": {fr.relation} }}{comma}");
+                sb.AppendLine($"    {{ \"name\": \"{Escape(fr.name)}\", \"relation\": {fr.relation}, \"relation_kind\": \"{Escape(fr.relationKind)}\" }}{comma}");
             }
         }
         sb.AppendLine("  ],");
@@ -74,7 +74,7 @@ public static class SnapshotSerializer
             {
                 var re = list[i];
                 string comma = i < list.Count - 1 ? "," : "";
-                sb.AppendLine($"    {{ \"type\": \"{Escape(re.type)}\", \"category\": \"{Escape(re.category)}\" }}{comma}");
+                sb.AppendLine($"    {{ \"event_type\": \"{Escape(re.event_type)}\", \"category\": \"{Escape(re.category)}\" }}{comma}");
             }
         }
         sb.AppendLine("  ],");

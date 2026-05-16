@@ -15,7 +15,7 @@ public static class IncidentEventStack
 
         incidentStack.Add(new RecentEventEntry
         {
-            type = IncidentWhitelist.GetLabel(defName),
+            event_type = defName,
             category = IncidentWhitelist.GetCategory(defName)
         });
 

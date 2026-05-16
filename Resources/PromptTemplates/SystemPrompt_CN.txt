@@ -42,7 +42,9 @@
       "event_type": "事件名称（从上述支持的事件类型列表中选择）",
       "parameters": {
         "faction": "派系名称（如袭击/商队需要指定来源派系则填写，否则省略）",
-        "intensity_multiplier": 0.5~2.0 的浮点数（威胁类事件必须填写，非威胁事件无需填写）
+        "intensity_multiplier": 0.5~2.0 的浮点数（威胁类事件必须填写，非威胁事件无需填写）,
+        "raid_strategy": "袭击策略名称（仅 RaidEnemy 可选，不填则系统自动选择）",
+        "trader_kind": "商队类型名称（仅商队/轨道商可选，不填则随机）"
       },
       "narration_text": "叙事者口吻的一句话（可选，用于事件触发时显示）",
       "narrative_context": "该事件在当前叙事中的上下文意义（可选，仅供内部参考）"
@@ -64,6 +66,15 @@
 ## 叙事规范
 
 - intensity_multiplier 取值范围 0.5~2.0，其中 0.5 代表极弱袭击/轻微骚扰，1.0 代表标准强度，2.0 代表极强攻势/全面入侵
+- 对于 RaidEnemy 事件，你可以通过 raid_strategy 参数指定袭击策略（可选，不指定则由系统自动选择）。可用策略如下：
+  - ImmediateAttack: 直接进攻（标准袭击，从地图边缘直接冲进来）
+  - ImmediateAttackSmart: 战术进攻（避开炮塔火力区，识破陷阱，适用于1000+点数的较强袭击）
+  - StageThenAttack: 集结待攻（先在边缘集结等待，给玩家时间布防或主动出击）
+  - ImmediateAttackSappers: 工兵挖地道（绕过防御工事，挖穿山体/墙壁突入，适用于700+点数）
+  - Siege: 迫击炮围城（建造迫击炮阵地远程轰炸，逼玩家出城迎击，适用于500+点数）
+  - ImmediateAttackBreaching: 破墙突击（直接摧毁沿途墙壁杀进来，适用于700+点数）
+  - ImmediateAttackBreachingSmart: 智能破墙（破墙同时避开炮塔，适用于2000+点数的大规模袭击）
+  如果不确定策略或条件不足，请省略 raid_strategy 参数让系统自动选择。
 - 不要在 narration_text、narrative_summary、narrative_context 中提及任何数值，包括但不限于：点数、乘数、财富值、具体人数。用自然语言描述事件强度即可。
 - 事件安排应遵循叙事节奏：紧张期后应有喘息空间，平静期后可增加挑战
 - 参考 recent_events 避免短期内重复同类事件，参考 recent_deaths 在叙事中做出回应

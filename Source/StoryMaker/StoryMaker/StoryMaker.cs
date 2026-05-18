@@ -67,12 +67,14 @@ public class StoryMaker : Mod
 
     private void DrawTabs(Listing_Standard listing)
     {
-        float btnWidth = (listing.ColumnWidth - 20f) / 3f;
+        var rowRect = listing.GetRect(30f);
+        float spacing = 10f;
+        float btnWidth = (rowRect.width - spacing * 2f) / 3f;
         for (int i = 0; i < TabLabels.Length; i++)
         {
             GUI.color = selectedTab == i ? Color.cyan : Color.gray;
-            var rect = listing.GetRect(30f);
-            if (Widgets.ButtonText(new Rect(rect.x + i * (btnWidth + 10f), rect.y, btnWidth, 28f), TabLabels[i].Translate()))
+            var btnRect = new Rect(rowRect.x + i * (btnWidth + spacing), rowRect.y, btnWidth, 28f);
+            if (Widgets.ButtonText(btnRect, TabLabels[i].Translate()))
                 selectedTab = i;
         }
         GUI.color = Color.white;

@@ -7,7 +7,14 @@
       "mcp__rimSage__list_directory",
       "mcp__rimSage__read_csharp_symbol",
       "mcp__rimSage__search_source",
-      "Bash(dotnet msbuild *)"
+      "Bash(dotnet msbuild *)",
+      "Bash(LLM)",
+      "Bash(Prompt\")",
+      "Bash(dotnet build *)",
+      "WebSearch",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(grep -v \"Log\\\\.\\\\|grep\\\\|\\\\.cs:.*//\\\\|^\\\\s*//\")"
     ]
   }
 }

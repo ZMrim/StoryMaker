@@ -4,11 +4,10 @@ using Verse;
 
 namespace StoryMaker.Action;
 
-// 猎杀人类兽群 + 动物发狂：intensity_multiplier
-// 覆盖 ManhunterPack / AnimalInsanitySingle / AnimalInsanityMass
-public class ActionManhunterPack : IActionHandler
+// 虫害事件：intensity_multiplier
+public class ActionInfestation : IActionHandler
 {
-    public string EventType => "ManhunterPack";  // 主入口，实际根据 event_type 分发
+    public string EventType => "Infestation";
     public bool IsAllowedInImmediateMode => false;
     public float MaxImmediatePointsMultiplier => 0f;
 
@@ -28,22 +27,22 @@ public class ActionManhunterPack : IActionHandler
         {
             if (!evt.resolvedDef.Worker.TryExecute(parms))
             {
-                Log.Warning($"[StoryMaker] ManhunterPack: 自定义参数执行失败 ({evt.event_type}, points={parms.points:F0})，尝试原版默认参数...");
+                Log.Warning($"[StoryMaker] Infestation: 自定义参数执行失败 ({evt.event_type}, points={parms.points:F0})，尝试原版默认参数...");
                 IncidentParms fallbackParms = StorytellerUtility.DefaultParmsNow(evt.resolvedDef.category, map);
                 if (!evt.resolvedDef.Worker.TryExecute(fallbackParms))
                 {
-                    Log.Error($"[StoryMaker] ManhunterPack: 原版默认参数也执行失败 ({evt.event_type})");
+                    Log.Error($"[StoryMaker] Infestation: 原版默认参数也执行失败 ({evt.event_type})");
                     return false;
                 }
-                Log.Message($"[StoryMaker] ManhunterPack: 原版默认参数执行成功 (回退, {evt.event_type})");
+                Log.Message($"[StoryMaker] Infestation: 原版默认参数执行成功 (回退, {evt.event_type})");
                 return true;
             }
-            Log.Message($"[StoryMaker] ManhunterPack: {evt.event_type}, points={originalPoints:F0}×{intensity:F2}={parms.points:F0}");
+            Log.Message($"[StoryMaker] Infestation: {evt.event_type}, points={originalPoints:F0}×{intensity:F2}={parms.points:F0}");
             return true;
         }
         catch (System.Exception ex)
         {
-            Log.Error($"[StoryMaker] ManhunterPack 执行异常 ({evt.event_type}): {ex.Message}");
+            Log.Error($"[StoryMaker] Infestation 执行异常 ({evt.event_type}): {ex.Message}");
             return false;
         }
     }

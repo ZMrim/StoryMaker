@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<LanguageData>
+
+  <!-- ================================================================ -->
+  <!-- Tab Labels -->
+  <!-- ================================================================ -->
+  <StoryMaker_Tab_Basic>Basic</StoryMaker_Tab_Basic>
+  <StoryMaker_Tab_Advanced>Advanced</StoryMaker_Tab_Advanced>
+  <StoryMaker_Tab_Developer>Developer</StoryMaker_Tab_Developer>
+
+  <!-- ================================================================ -->
+  <!-- Basic Settings -->
+  <!-- ================================================================ -->
+  <StoryMaker_Settings_ApiSection>LLM API Configuration</StoryMaker_Settings_ApiSection>
+  <StoryMaker_Settings_Provider>LLM Provider</StoryMaker_Settings_Provider>
+  <StoryMaker_Settings_ApiKey>API Key</StoryMaker_Settings_ApiKey>
+  <StoryMaker_Settings_ModelName>Model Name</StoryMaker_Settings_ModelName>
+  <StoryMaker_Settings_CustomUrl>Custom URL</StoryMaker_Settings_CustomUrl>
+  <StoryMaker_Settings_PersonalitySection>Storyteller Personality</StoryMaker_Settings_PersonalitySection>
+  <StoryMaker_Settings_PersonalityDesc>Describe the personality and style you want the storyteller to have (recommended &lt;200 characters):</StoryMaker_Settings_PersonalityDesc>
+
+  <!-- ================================================================ -->
+  <!-- Advanced Settings -->
+  <!-- ================================================================ -->
+  <StoryMaker_Settings_ScheduleSection>Scheduling Parameters</StoryMaker_Settings_ScheduleSection>
+  <!-- {0}=bufferDays -->
+  <StoryMaker_Settings_BufferDays>Buffer period (game days): {0}</StoryMaker_Settings_BufferDays>
+  <!-- {0}=planWindowDays -->
+  <StoryMaker_Settings_PlanWindowDays>Plan window (game days): {0}</StoryMaker_Settings_PlanWindowDays>
+  <!-- {0}=timeoutSeconds -->
+  <StoryMaker_Settings_TimeoutSeconds>Request timeout (seconds): {0}</StoryMaker_Settings_TimeoutSeconds>
+  <!-- {0}=maxRetransmissions -->
+  <StoryMaker_Settings_MaxRetransmissions>Max retransmissions: {0}</StoryMaker_Settings_MaxRetransmissions>
+  <!-- {0}=staleThresholdDays -->
+  <StoryMaker_Settings_StaleThreshold>Stale event threshold (game days, cleans old events on load): {0}</StoryMaker_Settings_StaleThreshold>
+  <StoryMaker_Settings_EnableThinking>Enable thinking/reasoning mode (auto-adapts to each provider format; disable to greatly reduce token usage)</StoryMaker_Settings_EnableThinking>
+  <StoryMaker_Settings_LowTokenMode>Low token mode (streamlined prompts to reduce API cost)</StoryMaker_Settings_LowTokenMode>
+  <StoryMaker_Settings_DeathWhitelist>Death record race whitelist (defName, comma separated, default: Human):</StoryMaker_Settings_DeathWhitelist>
+
+  <!-- ================================================================ -->
+  <!-- Developer Settings -->
+  <!-- ================================================================ -->
+  <StoryMaker_Settings_SendTestRequest>Send Test Request</StoryMaker_Settings_SendTestRequest>
+  <StoryMaker_Settings_RestoreConnectionBtn>Restore Connection (clear degraded state)</StoryMaker_Settings_RestoreConnectionBtn>
+  <StoryMaker_Settings_SkipWindow>Skip Current Window</StoryMaker_Settings_SkipWindow>
+  <StoryMaker_Settings_RefreshNow>Send Request Now</StoryMaker_Settings_RefreshNow>
+  <StoryMaker_Settings_ResetStats>Reset Statistics</StoryMaker_Settings_ResetStats>
+  <StoryMaker_Settings_DebugMode>Developer debug mode (save full requests/responses to disk)</StoryMaker_Settings_DebugMode>
+  <!-- {0}=selected mode label -->
+  <StoryMaker_Settings_SimHeader>Error simulation mode: {0}</StoryMaker_Settings_SimHeader>
+  <StoryMaker_Settings_RuntimeStatus>Runtime Status:</StoryMaker_Settings_RuntimeStatus>
+  <!-- {0}=day, {1}=tick -->
+  <StoryMaker_Settings_AckPosition>ACK position: Day {0} (tick {1})</StoryMaker_Settings_AckPosition>
+  <!-- {0}=count -->
+  <StoryMaker_Settings_QueueDepth>Event queue depth: {0}</StoryMaker_Settings_QueueDepth>
+  <!-- {0}=daysAgo:F1 -->
+  <StoryMaker_Settings_LastRequest>Last request: ~{0:F1} days ago</StoryMaker_Settings_LastRequest>
+  <StoryMaker_Settings_LastRequest_None>Last request: not yet sent</StoryMaker_Settings_LastRequest_None>
+  <!-- {0}=error -->
+  <StoryMaker_Settings_LastError>Last error: {0}</StoryMaker_Settings_LastError>
+  <!-- {0}=count -->
+  <StoryMaker_Settings_EmptyCount>Consecutive empty plans: {0}</StoryMaker_Settings_EmptyCount>
+
+  <!-- Simulation mode options -->
+  <StoryMaker_Sim_None>Off</StoryMaker_Sim_None>
+  <StoryMaker_Sim_Timeout>Simulate Timeout</StoryMaker_Sim_Timeout>
+  <StoryMaker_Sim_ConnectionError>Simulate Connection Error</StoryMaker_Sim_ConnectionError>
+  <StoryMaker_Sim_BadJson>Simulate Bad JSON</StoryMaker_Sim_BadJson>
+  <StoryMaker_Sim_SchemaViolation>Simulate Schema Violation</StoryMaker_Sim_SchemaViolation>
+  <StoryMaker_Sim_EventViolation>Simulate Event Violation</StoryMaker_Sim_EventViolation>
+
+  <!-- ================================================================ -->
+  <!-- Bottom Management Panel -->
+  <!-- ================================================================ -->
+  <StoryMaker_BottomTab_Title>AI Storyteller</StoryMaker_BottomTab_Title>
+  <!-- {0}=status text -->
+  <StoryMaker_BottomTab_Connection>Connection: {0}</StoryMaker_BottomTab_Connection>
+  <!-- {0}=totalStr, {1}=promptTokens, {2}=completionTokens -->
+  <StoryMaker_BottomTab_Tokens>Token usage (total): {0} (P: {1:N0}, C: {2:N0})</StoryMaker_BottomTab_Tokens>
+  <StoryMaker_BottomTab_RestoreConnection>Restore Connection</StoryMaker_BottomTab_RestoreConnection>
+  <StoryMaker_BottomTab_Dialogue>Chat with Storyteller:</StoryMaker_BottomTab_Dialogue>
+  <StoryMaker_BottomTab_FloatingBar_On>Floating Bar: Visible (click to hide)</StoryMaker_BottomTab_FloatingBar_On>
+  <StoryMaker_BottomTab_FloatingBar_Off>Floating Bar: Hidden (click to show)</StoryMaker_BottomTab_FloatingBar_Off>
+  <StoryMaker_BottomTab_OpenChat>Open Chat Window</StoryMaker_BottomTab_OpenChat>
+
+  <!-- Connection status text -->
+  <StoryMaker_Status_Normal>Normal</StoryMaker_Status_Normal>
+  <StoryMaker_Status_Requesting>Requesting...</StoryMaker_Status_Requesting>
+  <StoryMaker_Status_Degraded>Degraded</StoryMaker_Status_Degraded>
+  <StoryMaker_Status_Permanent>Permanently Degraded (switched to vanilla storyteller)</StoryMaker_Status_Permanent>
+
+  <!-- ================================================================ -->
+  <!-- Dialogue Window -->
+  <!-- ================================================================ -->
+  <StoryMaker_Dialogue_Title>AI Storyteller — Chat</StoryMaker_Dialogue_Title>
+  <StoryMaker_Dialogue_Placeholder>Type your message to the storyteller...</StoryMaker_Dialogue_Placeholder>
+  <StoryMaker_Dialogue_Send>Send</StoryMaker_Dialogue_Send>
+  <StoryMaker_Dialogue_Thinking>Thinking</StoryMaker_Dialogue_Thinking>
+  <StoryMaker_Dialogue_Timeout>(The storyteller did not respond... connection timed out. Please try again.)</StoryMaker_Dialogue_Timeout>
+  <!-- {0}=event type -->
+  <StoryMaker_Dialogue_EventTriggered>◆ Event triggered: {0}</StoryMaker_Dialogue_EventTriggered>
+
+  <!-- ================================================================ -->
+  <!-- Floating Bar -->
+  <!-- ================================================================ -->
+  <StoryMaker_FloatingBar_Label>Storyteller</StoryMaker_FloatingBar_Label>
+  <StoryMaker_FloatingBar_Empty>No dialogue yet</StoryMaker_FloatingBar_Empty>
+  <StoryMaker_FloatingBar_Expand>Expand</StoryMaker_FloatingBar_Expand>
+
+  <!-- ================================================================ -->
+  <!-- Dialogue Handler -->
+  <!-- ================================================================ -->
+  <StoryMaker_Dialogue_NarratorThinking>The storyteller is thinking, please wait...</StoryMaker_Dialogue_NarratorThinking>
+  <StoryMaker_Dialogue_ApiNotConfigured>API not configured. Cannot chat with storyteller.</StoryMaker_Dialogue_ApiNotConfigured>
+  <!-- {0}=failureReason -->
+  <StoryMaker_Dialogue_NetworkError>The storyteller is temporarily unavailable ({0}). Please try again later.</StoryMaker_Dialogue_NetworkError>
+
+  <!-- ================================================================ -->
+  <!-- Degradation Dialog -->
+  <!-- ================================================================ -->
+  <!-- {0}=fromDay, {1}=toDay, {2}=reason -->
+  <StoryMaker_Degradation_Message>Request timed out. Window [Day {0} ~ Day {1}] failed to receive a valid response.
+Vanilla storyteller has temporarily taken over.
+
+Error details: {2}
+
+You can choose:</StoryMaker_Degradation_Message>
+  <StoryMaker_Degradation_Retry>Retry (send next window request now)</StoryMaker_Degradation_Retry>
+  <StoryMaker_Degradation_GiveUp>Give Up (stop sending requests, manual recovery required)</StoryMaker_Degradation_GiveUp>
+
+  <!-- ================================================================ -->
+  <!-- General Messages -->
+  <!-- ================================================================ -->
+  <StoryMaker_Msg_ConnectionRestored>AI Storyteller connection restored. Scheduling request is being sent.</StoryMaker_Msg_ConnectionRestored>
+  <StoryMaker_Msg_WindowSkipped>Current window skipped. Will re-evaluate on next tick.</StoryMaker_Msg_WindowSkipped>
+  <StoryMaker_Msg_Refreshed>Buffer period ignored. Scheduling request sent immediately.</StoryMaker_Msg_Refreshed>
+  <StoryMaker_Msg_StatsReset>Statistics counters reset.</StoryMaker_Msg_StatsReset>
+  <StoryMaker_Msg_ApiConfigMissing>API Key or Model Name is not configured.\nPlease fill in the API Key and Model Name in Mod Settings first.</StoryMaker_Msg_ApiConfigMissing>
+  <StoryMaker_Msg_DegradationCleared>Degradation state cleared.\nAI Storyteller will resume normal scheduling on next tick.</StoryMaker_Msg_DegradationCleared>
+  <StoryMaker_Msg_Ok>OK</StoryMaker_Msg_Ok>
+  <!-- {0}=event type -->
+  <StoryMaker_NarrationLetter>Storyteller: {0}</StoryMaker_NarrationLetter>
+
+  <!-- ================================================================ -->
+  <!-- LLM Provider Labels -->
+  <!-- ================================================================ -->
+  <StoryMaker_Provider_DeepSeek>DeepSeek</StoryMaker_Provider_DeepSeek>
+  <StoryMaker_Provider_OpenAI>OpenAI</StoryMaker_Provider_OpenAI>
+  <StoryMaker_Provider_Google>Google</StoryMaker_Provider_Google>
+  <StoryMaker_Provider_OpenRouter>OpenRouter</StoryMaker_Provider_OpenRouter>
+  <StoryMaker_Provider_Custom>Custom</StoryMaker_Provider_Custom>
+
+</LanguageData>

@@ -144,6 +144,14 @@
         <Compile Include="Action\Actions\ActionDisease.cs"/>
         <Compile Include="Action\Actions\ActionManhunterPack.cs"/>
         <Compile Include="Action\Actions\ActionPsychicDrone.cs"/>
+        <Compile Include="Action\Actions\ActionInfestation.cs"/>
+        <Compile Include="UI\StoryMakerBottomTab.cs"/>
+        <Compile Include="UI\StoryMakerFloatingBar.cs"/>
+        <Compile Include="UI\StoryMakerDialogueWindow.cs"/>
+        <Compile Include="Dialogue\DialogueModels.cs"/>
+        <Compile Include="Dialogue\DialoguePromptBuilder.cs"/>
+        <Compile Include="Dialogue\DialogueResponseParser.cs"/>
+        <Compile Include="Dialogue\DialogueHandler.cs"/>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

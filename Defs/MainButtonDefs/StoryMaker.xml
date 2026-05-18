@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <MainButtonDef>
+    <defName>StoryMaker</defName>
+    <label>storymaker</label>
+    <description>View AI Storyteller status, manage connection, and chat with the storyteller.</description>
+    <tabWindowClass>StoryMaker.UI.StoryMakerBottomTab</tabWindowClass>
+    <order>85</order>
+    <validWithoutMap>true</validWithoutMap>
+    <minimized>True</minimized>
+  </MainButtonDef>
+
+</Defs>

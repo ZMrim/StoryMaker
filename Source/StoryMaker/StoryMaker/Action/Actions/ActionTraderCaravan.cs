@@ -5,10 +5,11 @@ using Verse;
 
 namespace StoryMaker.Action;
 
-// 商队抵达：faction（可选）+ trader_kind（可选）
+// 商队抵达 + 轨道商：faction（可选）+ trader_kind（可选）
+// 覆盖 TraderCaravanArrival / OrbitalTraderArrival
 public class ActionTraderCaravan : IActionHandler
 {
-    public string EventType => "TraderCaravanArrival";
+    public string EventType => "TraderCaravanArrival";  // 主入口，实际根据 event_type 分发
     public bool IsAllowedInImmediateMode => true;
     public float MaxImmediatePointsMultiplier => 0.5f;
 
@@ -17,8 +18,7 @@ public class ActionTraderCaravan : IActionHandler
         var map = Find.CurrentMap ?? Find.AnyPlayerHomeMap;
         if (map == null) return false;
 
-        IncidentDef incidentDef = IncidentDefOf.TraderCaravanArrival;
-        IncidentParms parms = StorytellerUtility.DefaultParmsNow(incidentDef.category, map);
+        IncidentParms parms = StorytellerUtility.DefaultParmsNow(evt.resolvedDef.category, map);
 
         // 1. 派系（可选）
         string factionName = evt.GetStringParam("faction");
@@ -41,24 +41,24 @@ public class ActionTraderCaravan : IActionHandler
 
         try
         {
-            if (!incidentDef.Worker.TryExecute(parms))
+            if (!evt.resolvedDef.Worker.TryExecute(parms))
             {
-                Log.Warning($"[StoryMaker] TraderCaravan: 自定义参数执行失败 (faction={parms.faction?.Name ?? "自动"}, trader={parms.traderKind?.defName ?? "自动"})，尝试原版默认参数...");
-                IncidentParms fallbackParms = StorytellerUtility.DefaultParmsNow(incidentDef.category, map);
-                if (!incidentDef.Worker.TryExecute(fallbackParms))
+                Log.Warning($"[StoryMaker] Trader: 自定义参数执行失败 ({evt.event_type}, faction={parms.faction?.Name ?? "自动"}, trader={parms.traderKind?.defName ?? "自动"})，尝试原版默认参数...");
+                IncidentParms fallbackParms = StorytellerUtility.DefaultParmsNow(evt.resolvedDef.category, map);
+                if (!evt.resolvedDef.Worker.TryExecute(fallbackParms))
                 {
-                    Log.Error($"[StoryMaker] TraderCaravan: 原版默认参数也执行失败");
+                    Log.Error($"[StoryMaker] Trader: 原版默认参数也执行失败 ({evt.event_type})");
                     return false;
                 }
-                Log.Message($"[StoryMaker] TraderCaravan: 原版默认参数执行成功 (回退)");
+                Log.Message($"[StoryMaker] Trader: 原版默认参数执行成功 (回退, {evt.event_type})");
                 return true;
             }
-            Log.Message($"[StoryMaker] TraderCaravan: faction={parms.faction?.Name ?? "自动"}, trader={parms.traderKind?.defName ?? "自动"}");
+            Log.Message($"[StoryMaker] Trader: {evt.event_type}, faction={parms.faction?.Name ?? "自动"}, trader={parms.traderKind?.defName ?? "自动"}");
             return true;
         }
         catch (System.Exception ex)
         {
-            Log.Error($"[StoryMaker] TraderCaravan 执行异常: {ex.Message}");
+            Log.Error($"[StoryMaker] Trader 执行异常 ({evt.event_type}): {ex.Message}");
             return false;
         }
     }

@@ -10,6 +10,23 @@ public static class PromptTemplates
 
     private static string cachedCn, cachedEn;
     private static string cachedCnLow, cachedEnLow;
+    private static string cachedDialogueCn, cachedDialogueEn;
+
+    public static string GetDialogueSystemPrompt()
+    {
+        bool isChinese = (Prefs.LangFolderName ?? "").StartsWith("Chinese");
+
+        if (isChinese)
+        {
+            if (cachedDialogueCn == null)
+                cachedDialogueCn = LoadTemplate("DialoguePrompt_CN.txt");
+            return cachedDialogueCn;
+        }
+
+        if (cachedDialogueEn == null)
+            cachedDialogueEn = LoadTemplate("DialoguePrompt_EN.txt");
+        return cachedDialogueEn;
+    }
 
     public static string GetSystemPrompt(bool lowToken)
     {

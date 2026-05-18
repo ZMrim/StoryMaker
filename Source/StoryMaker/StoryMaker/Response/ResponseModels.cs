@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using RimWorld;
 using Verse;
 
 namespace StoryMaker.Response;
@@ -30,6 +31,18 @@ public class PlannedEvent : IExposable
     public Dictionary<string, string> parameters;
     public string narration_text;
     public string narrative_context;
+
+    // 运行时解析的 IncidentDef（不序列化，读档后通过 ResolveDef() 恢复）
+    [Unsaved(false)]
+    public IncidentDef resolvedDef;
+
+    // 将 event_type 字符串解析为 IncidentDef 引用。入队前必须调用。
+    // 返回 true 表示解析成功，false 表示 def 不存在或 worker 为空。
+    public bool ResolveDef()
+    {
+        resolvedDef = DefDatabase<IncidentDef>.GetNamed(event_type, false);
+        return resolvedDef?.Worker != null;
+    }
 
     // 便捷访问方法
     public bool HasParam(string key) => parameters != null && parameters.ContainsKey(key);

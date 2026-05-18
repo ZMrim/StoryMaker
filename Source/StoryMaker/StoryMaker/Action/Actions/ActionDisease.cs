@@ -17,7 +17,7 @@ public class ActionDisease : IActionHandler
         "Disease_Flu", "Disease_Plague", "Disease_Malaria",
         "Disease_SleepingSickness", "Disease_FibrousMechanites",
         "Disease_SensoryMechanites", "Disease_GutWorms", "Disease_MuscleParasites",
-        "Disease_AnimalFlu", "Disease_AnimalPlague"
+        "Disease_AnimalFlu", "Disease_AnimalPlague", "Disease_Abasia"
     };
 
     public bool Execute(PlannedEvent evt)
@@ -25,15 +25,7 @@ public class ActionDisease : IActionHandler
         var map = Find.CurrentMap ?? Find.AnyPlayerHomeMap;
         if (map == null) return false;
 
-        // 直接用 evt.event_type 查找对应的 IncidentDef
-        IncidentDef incidentDef = DefDatabase<IncidentDef>.GetNamed(evt.event_type, false);
-        if (incidentDef?.Worker == null)
-        {
-            Log.Error($"[StoryMaker] Disease: 找不到 IncidentDef '{evt.event_type}'");
-            return false;
-        }
-
-        IncidentParms parms = StorytellerUtility.DefaultParmsNow(incidentDef.category, map);
+        IncidentParms parms = StorytellerUtility.DefaultParmsNow(evt.resolvedDef.category, map);
 
         // intensity_multiplier 影响疾病严重度
         float intensity = evt.GetFloatParam("intensity_multiplier", 1.0f);
@@ -43,11 +35,11 @@ public class ActionDisease : IActionHandler
 
         try
         {
-            if (!incidentDef.Worker.TryExecute(parms))
+            if (!evt.resolvedDef.Worker.TryExecute(parms))
             {
                 Log.Warning($"[StoryMaker] Disease: 自定义参数执行失败 ({evt.event_type}, points={parms.points:F0})，尝试原版默认参数...");
-                IncidentParms fallbackParms = StorytellerUtility.DefaultParmsNow(incidentDef.category, map);
-                if (!incidentDef.Worker.TryExecute(fallbackParms))
+                IncidentParms fallbackParms = StorytellerUtility.DefaultParmsNow(evt.resolvedDef.category, map);
+                if (!evt.resolvedDef.Worker.TryExecute(fallbackParms))
                 {
                     Log.Error($"[StoryMaker] Disease: 原版默认参数也执行失败 ({evt.event_type})");
                     return false;

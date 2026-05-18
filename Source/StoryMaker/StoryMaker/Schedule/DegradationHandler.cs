@@ -19,27 +19,23 @@ public static class DegradationHandler
         int fromDay = missedFromTick / 60000;
         int toDay = missedToTick / 60000;
 
-        string text = $"AI 叙事者连接失败，窗口 [第 {fromDay} 天 ~ 第 {toDay} 天] 未能获得有效回复。\n\n"
-                    + $"错误详情: {reason}\n\n"
-                    + "你可以选择重试（忽略缓冲期，立即重新请求）或放弃（永久切换至原版叙事者，"
-                    + "之后可通过 Mod 设置中的\"恢复连接\"按钮重新启用 AI 叙事者）。\n\n"
-                    + "（游戏已自动暂停，可从容选择）";
+        string text = "StoryMaker_Degradation_Message".Translate(fromDay, toDay, reason);
 
         var dialog = new Dialog_MessageBox(
             text: text,
-            buttonAText: "重试",
+            buttonAText: "StoryMaker_Degradation_Retry".Translate(),
             buttonAAction: () =>
             {
                 IsDialogOpen = false;
                 onRetry?.Invoke();
             },
-            buttonBText: "放弃",
+            buttonBText: "StoryMaker_Degradation_GiveUp".Translate(),
             buttonBAction: () =>
             {
                 IsDialogOpen = false;
                 onGiveUp?.Invoke();
             },
-            title: "AI 叙事者连接失败",
+            title: null,
             buttonADestructive: false
         );
 

@@ -94,7 +94,7 @@ public static class ActionExecutor
         try
         {
             Find.LetterStack.ReceiveLetter(
-                label: $"叙事者: {evt.event_type}",
+                label: "StoryMaker_NarrationLetter".Translate(evt.event_type),
                 text: evt.narration_text,
                 textLetterDef: LetterDefOf.NeutralEvent,
                 lookTargets: null

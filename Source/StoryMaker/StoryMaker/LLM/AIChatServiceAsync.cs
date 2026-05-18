@@ -153,6 +153,10 @@ public class AIChatServiceAsync : MonoBehaviour
             {
                 string responseBody = request.downloadHandler.text ?? "";
                 Log.Message($"[StoryMaker] HTTP 200，耗时 {stopwatch.Elapsed.TotalSeconds:F1}s");
+
+                // 提取 token 使用量
+                ExtractAndRecordTokenUsage(responseBody);
+
                 EnqueueCallback(() => onSuccess?.Invoke(responseBody));
                 yield break;
             }
@@ -260,5 +264,47 @@ public class AIChatServiceAsync : MonoBehaviour
     private static bool IsRetryableHttpError(long responseCode)
     {
         return responseCode == 429 || (responseCode >= 500 && responseCode < 600);
+    }
+
+    // 从原始 HTTP 响应中提取 token 使用量并累计到 StoryMakerState
+    private static void ExtractAndRecordTokenUsage(string responseBody)
+    {
+        if (string.IsNullOrEmpty(responseBody)) return;
+
+        try
+        {
+            // 搜索 "usage":{"prompt_tokens": 模式
+            int usageIdx = responseBody.IndexOf("\"usage\":", StringComparison.Ordinal);
+            if (usageIdx < 0) return;
+
+            long promptTokens = ExtractLongAfterKey(responseBody, usageIdx, "\"prompt_tokens\":");
+            long completionTokens = ExtractLongAfterKey(responseBody, usageIdx, "\"completion_tokens\":");
+
+            if (promptTokens > 0 || completionTokens > 0)
+            {
+                StoryMakerState.Instance?.RecordTokenUsage(promptTokens, completionTokens);
+                Log.Message($"[StoryMaker] Token 用量: prompt={promptTokens}, completion={completionTokens}");
+            }
+        }
+        catch (System.Exception) { /* 不影响主流程 */ }
+    }
+
+    private static long ExtractLongAfterKey(string body, int startIdx, string key)
+    {
+        int keyIdx = body.IndexOf(key, startIdx, StringComparison.Ordinal);
+        if (keyIdx < 0) return 0;
+
+        keyIdx += key.Length;
+        // 跳过空白
+        while (keyIdx < body.Length && body[keyIdx] == ' ') keyIdx++;
+
+        // 读取数字
+        long num = 0;
+        while (keyIdx < body.Length && body[keyIdx] >= '0' && body[keyIdx] <= '9')
+        {
+            num = num * 10 + (body[keyIdx] - '0');
+            keyIdx++;
+        }
+        return num;
     }
 }

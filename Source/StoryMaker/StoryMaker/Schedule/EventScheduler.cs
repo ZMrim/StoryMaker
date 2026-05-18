@@ -55,6 +55,41 @@ public static class EventScheduler
         eventQueue.ExposeData();
     }
 
+    // ── 底部管理面板访问器 ──
+    public static bool IsRequestLocked
+    {
+        get { EnsureInit(); return requestLock?.IsLocked ?? false; }
+    }
+
+    public static int QueueCount
+    {
+        get { EnsureInit(); return eventQueue?.Count ?? 0; }
+    }
+
+    public static int LastRequestTick => requestSentAtTick;
+
+    // 强制刷新：忽略缓冲期，立即发送调度请求
+    public static void ForceRefresh()
+    {
+        EnsureInit();
+        int curTick = Find.TickManager?.TicksGame ?? 0;
+        var settings = StoryMaker.Instance?.Settings;
+        if (settings != null)
+        {
+            if (requestLock != null && requestLock.IsLocked)
+                requestLock.Unlock();
+            SendSchedulingRequest(curTick, settings.BufferTicks, settings.PlanWindowTicks);
+        }
+    }
+
+    // 强制跳过当前窗口（解锁但不发请求，下个 tick 自动评估）
+    public static void SkipCurrentWindow()
+    {
+        EnsureInit();
+        if (requestLock != null && requestLock.IsLocked)
+            requestLock.Unlock();
+    }
+
     // ── 主 Tick ──
     public static void OnTick(int curTick)
     {
@@ -162,7 +197,7 @@ public static class EventScheduler
         eventRetryCount = 0;
         emptyRetryCount = 0;
 
-        // 过滤 eventQueue 中已过期的事件 (scheduled_tick < curTick)
+        // 过滤 eventQueue 中已过期的事件 (scheduled_tick < curTick) + 恢复 Def 引用
         var expiredEvents = new List<PlannedEvent>();
         var remainingEvents = new List<PlannedEvent>();
 
@@ -171,17 +206,24 @@ public static class EventScheduler
             if (evt.scheduled_tick < curTick)
             {
                 expiredEvents.Add(evt);
+                continue;
             }
-            else
+
+            // 读档恢复：重新解析 IncidentDef 引用
+            if (!evt.ResolveDef())
             {
-                remainingEvents.Add(evt);
+                Log.Warning($"[StoryMaker] 读档: 事件 '{evt.event_type}' 的 IncidentDef 不存在，转为 deviation_report");
+                ActionExecutor.AddFailedEvent(evt.event_id, evt.event_type,
+                    $"读档恢复: IncidentDef '{evt.event_type}' 不存在或 Worker 为空");
+                continue;  // 不入队
             }
+
+            remainingEvents.Add(evt);
         }
 
         if (expiredEvents.Count > 0)
         {
             Log.Message($"[StoryMaker] 读档: 过滤 {expiredEvents.Count} 个过期事件 (scheduled_tick < {curTick})");
-            // 过期事件 → deviation_report
             foreach (var evt in expiredEvents)
             {
                 ActionExecutor.AddFailedEvent(evt.event_id, evt.event_type,
@@ -189,12 +231,42 @@ public static class EventScheduler
             }
         }
 
+        // Phase 5: Stale 事件检测（generated_at_world_tick 差距过大）
+        int staleThreshold = StoryMaker.Instance?.Settings?.StaleThresholdTicks ?? 900000;
+        var staleEvents = new List<PlannedEvent>();
+        var trulyValid = new List<PlannedEvent>();
+
+        foreach (var evt in remainingEvents)
+        {
+            int age = curTick - evt.generated_at_world_tick;
+            if (evt.generated_at_world_tick > 0 && age > staleThreshold)
+            {
+                staleEvents.Add(evt);
+                Log.Message($"[StoryMaker] 读档: 事件 {evt.event_type} 标记为 stale (生成于 {evt.generated_at_world_tick}, 当前 {curTick}, 已过 {age / 60000} 天)");
+            }
+            else
+            {
+                trulyValid.Add(evt);
+            }
+        }
+
+        if (staleEvents.Count > 0)
+        {
+            Log.Message($"[StoryMaker] 读档: {staleEvents.Count} 个 stale 事件转为 deviation_report");
+            foreach (var evt in staleEvents)
+            {
+                int age = curTick - evt.generated_at_world_tick;
+                ActionExecutor.AddFailedEvent(evt.event_id, evt.event_type,
+                    $"stale_event: generated_at={evt.generated_at_world_tick}, curTick={curTick}, age_days={age / 60000}");
+            }
+        }
+
         // 重建队列（按 tick 排序）
         eventQueue.Clear();
-        if (remainingEvents.Count > 0)
-            eventQueue.InsertAll(remainingEvents);
+        if (trulyValid.Count > 0)
+            eventQueue.InsertAll(trulyValid);
 
-        Log.Message($"[StoryMaker] 读档恢复: ack={ack}, 队列深度={eventQueue.Count}, 过期={expiredEvents.Count}");
+        Log.Message($"[StoryMaker] 读档恢复: ack={ack}, 队列深度={eventQueue.Count}, 过期={expiredEvents.Count}, stale={staleEvents.Count}");
     }
 
     // ── 执行到期 ──
@@ -352,16 +424,23 @@ public static class EventScheduler
             requestLock.Unlock();
             int curTick = Find.TickManager?.TicksGame ?? 0;
 
-            // 设置 generated_at_world_tick
+            // 解析 IncidentDef + 设置 generated_at_world_tick
             if (response.events != null)
             {
                 foreach (var evt in response.events)
+                {
                     evt.generated_at_world_tick = curTick;
+                    if (!evt.ResolveDef())
+                    {
+                        ActionExecutor.AddFailedEvent(evt.event_id, evt.event_type,
+                            $"IncidentDef 不存在或 Worker 为空: {evt.event_type}");
+                    }
+                }
             }
 
-            // 过滤已过期事件
+            // 过滤已过期事件 + Def 解析失败事件
             var validEvents = response.events
-                ?.Where(e => e.scheduled_tick >= curTick)
+                ?.Where(e => e.scheduled_tick >= curTick && e.resolvedDef != null)
                 .ToList();
 
             if (validEvents != null && validEvents.Count > 0)

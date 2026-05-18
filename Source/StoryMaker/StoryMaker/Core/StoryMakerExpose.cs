@@ -19,6 +19,8 @@ public static class StoryMakerExpose
         Scribe_Values.Look(ref state.degradationReason, "degradationReason", "");
         Scribe_Values.Look(ref state.consecutiveEmptyPlans, "consecutiveEmptyPlans", 0);
         Scribe_Values.Look(ref state.contextVersion, "contextVersion", 0);
+        Scribe_Values.Look(ref state.totalPromptTokens, "totalPromptTokens", 0L);
+        Scribe_Values.Look(ref state.totalCompletionTokens, "totalCompletionTokens", 0L);
 
         // ── 事件队列（由 EventScheduler 持有） ──
         Schedule.EventScheduler.ExposeQueue();
@@ -28,5 +30,8 @@ public static class StoryMakerExpose
 
         // ── 执行失败事件 ──
         ActionExecutor.ExposeData();
+
+        // ── 对话状态 ──
+        Dialogue.DialogueHandler.ExposeData();
     }
 }

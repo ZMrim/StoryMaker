@@ -16,19 +16,11 @@ public class ActionPsychicDrone : IActionHandler
         var map = Find.CurrentMap ?? Find.AnyPlayerHomeMap;
         if (map == null) return false;
 
-        // PsychicDrone 或 PsychicSoothe
-        IncidentDef incidentDef = DefDatabase<IncidentDef>.GetNamed(evt.event_type, false);
-        if (incidentDef?.Worker == null)
-        {
-            Log.Error($"[StoryMaker] PsychicDrone: 找不到 IncidentDef '{evt.event_type}'");
-            return false;
-        }
-
-        IncidentParms parms = StorytellerUtility.DefaultParmsNow(incidentDef.category, map);
+        IncidentParms parms = StorytellerUtility.DefaultParmsNow(evt.resolvedDef.category, map);
 
         try
         {
-            if (!incidentDef.Worker.TryExecute(parms))
+            if (!evt.resolvedDef.Worker.TryExecute(parms))
             {
                 Log.Warning($"[StoryMaker] PsychicDrone: TryExecute 返回 false, {evt.event_type}");
                 return false;

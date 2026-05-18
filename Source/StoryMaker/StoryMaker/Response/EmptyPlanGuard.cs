@@ -74,6 +74,16 @@ public static class EmptyPlanGuard
         return null;
     }
 
+    // 重置计数器（底部管理面板调用）
+    public static void ResetCounters()
+    {
+        var state = StoryMakerState.Instance;
+        if (state != null) state.consecutiveEmptyPlans = 0;
+        warningInjectedThisWindow = false;
+        forceRetryUsed = false;
+        Log.Message("[StoryMaker] EmptyPlanGuard: 计数器已重置（管理面板操作）");
+    }
+
     private static string BuildForceRetryMessage()
     {
         return "STORYMAKER_EMPTY_PLAN_FORCE\n"

@@ -21,6 +21,10 @@ public class StoryMakerSettings : ModSettings
     public float timeoutSeconds = 60f;
     public int maxRetransmissions = 2;
 
+    // Stale 事件阈值（游戏天数，读档时清理生成时间过久的事件）
+    public int staleThresholdDays = 15;
+    public int StaleThresholdTicks => staleThresholdDays * 60000;
+
     // LLM API 配置
     public AIProvider provider = AIProvider.DeepSeek;
     public string apiKey = "";

@@ -23,7 +23,7 @@ public static class StoryMakerManager
         {
             Log.Error("[StoryMaker] 测试请求取消: API Key 或模型名称未配置。请先在 Mod 设置中填写。");
             Find.WindowStack?.Add(new Dialog_MessageBox(
-                "API Key 或模型名称未配置。\n请先在 Mod 设置中填写 API Key 和模型名称。", "确定", null));
+                "StoryMaker_Msg_ApiConfigMissing".Translate(), "StoryMaker_Msg_Ok".Translate(), null));
             return;
         }
 
@@ -120,6 +120,6 @@ public static class StoryMakerManager
     {
         StoryMakerState.Instance.ResetDegradation();
         Find.WindowStack?.Add(new Dialog_MessageBox(
-            "降级状态已清除。\nAI 叙事者将在下一个 tick 恢复正常调度。", "确定", null));
+            "StoryMaker_Msg_DegradationCleared".Translate(), "StoryMaker_Msg_Ok".Translate(), null));
     }
 }

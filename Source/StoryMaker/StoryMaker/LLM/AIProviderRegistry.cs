@@ -52,6 +52,10 @@ public static class AIProviderRegistry
 
     public static string GetLabel(this AIProvider p)
     {
+        string key = $"StoryMaker_Provider_{p}";
+        string translated = key.Translate();
+        if (translated != key) return translated;
+        // 翻译键未找到时回退到 Def Label 或枚举名
         if (Defs.TryGetValue(p, out var def) && !string.IsNullOrEmpty(def.Label))
             return def.Label;
         return p.ToString();

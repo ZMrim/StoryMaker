@@ -14,14 +14,26 @@ public static class ActionRegistry
 
     static ActionRegistry()
     {
-        // RaidEnemy — 单一事件类型
-        Register(new ActionRaidEnemy());
+        // 袭击 — 覆盖 RaidEnemy + RaidFriendly
+        var raidHandler = new ActionRaidEnemy();
+        RegisterFor("RaidEnemy", raidHandler);
+        RegisterFor("RaidFriendly", raidHandler);
 
-        // TraderCaravan — 单一事件类型
-        Register(new ActionTraderCaravan());
+        // 商队 + 轨道商 — 覆盖 TraderCaravanArrival + OrbitalTraderArrival
+        var traderHandler = new ActionTraderCaravan();
+        RegisterFor("TraderCaravanArrival", traderHandler);
+        RegisterFor("OrbitalTraderArrival", traderHandler);
 
-        // ManhunterPack — 单一事件类型
-        Register(new ActionManhunterPack());
+        // 猎杀人类 + 动物发狂
+        var manhunterHandler = new ActionManhunterPack();
+        RegisterFor("ManhunterPack", manhunterHandler);
+        RegisterFor("AnimalInsanitySingle", manhunterHandler);
+        RegisterFor("AnimalInsanityMass", manhunterHandler);
+
+        // 虫害
+        var infestationHandler = new ActionInfestation();
+        RegisterFor("Infestation", infestationHandler);
+        RegisterFor("Infestation_Jelly", infestationHandler);
 
         // 疾病 — 一个 handler 覆盖全部疾病子类型
         var diseaseHandler = new ActionDisease();
@@ -78,17 +90,10 @@ public static class ActionRegistry
         return handler.Execute(evt);
     }
 
-    // 通用兜底：对未注册但白名单内的事件，直接用 IncidentDef Worker 执行
+    // 通用兜底：对未注册但已有 resolvedDef 的事件，直接用 IncidentDef Worker 执行
     private static bool ExecuteGeneric(PlannedEvent evt)
     {
-        var def = DefDatabase<IncidentDef>.GetNamed(evt.event_type, false);
-        if (def?.Worker == null)
-        {
-            Log.Error($"[StoryMaker] 无法执行事件: '{evt.event_type}' 对应的 IncidentDef 不存在");
-            return false;
-        }
-
-        var parms = StorytellerUtility.DefaultParmsNow(def.category, Find.CurrentMap ?? Find.AnyPlayerHomeMap);
+        var parms = StorytellerUtility.DefaultParmsNow(evt.resolvedDef.category, Find.CurrentMap ?? Find.AnyPlayerHomeMap);
         // 应用 intensity_multiplier（如有）
         float multiplier = evt.GetFloatParam("intensity_multiplier", 1.0f);
         if (multiplier != 1.0f && parms.points > 0)
@@ -96,11 +101,11 @@ public static class ActionRegistry
 
         try
         {
-            if (!def.Worker.TryExecute(parms))
+            if (!evt.resolvedDef.Worker.TryExecute(parms))
             {
                 Log.Warning($"[StoryMaker] 通用执行: 自定义参数失败 ({evt.event_type}, intensity={multiplier:F2})，尝试原版默认参数...");
-                var fallbackParms = StorytellerUtility.DefaultParmsNow(def.category, Find.CurrentMap ?? Find.AnyPlayerHomeMap);
-                if (!def.Worker.TryExecute(fallbackParms))
+                var fallbackParms = StorytellerUtility.DefaultParmsNow(evt.resolvedDef.category, Find.CurrentMap ?? Find.AnyPlayerHomeMap);
+                if (!evt.resolvedDef.Worker.TryExecute(fallbackParms))
                 {
                     Log.Error($"[StoryMaker] 通用执行: 原版默认参数也执行失败 ({evt.event_type})");
                     return false;

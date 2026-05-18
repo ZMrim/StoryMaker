@@ -16,7 +16,7 @@ public enum DebugSimulationMode
 public class StoryMakerSettings : ModSettings
 {
     // TCP 协议参数
-    public int bufferDays = 2;
+    public int bufferDays = 3;
     public int planWindowDays = 5;
     public float timeoutSeconds = 60f;
     public int maxRetransmissions = 2;
@@ -39,10 +39,10 @@ public class StoryMakerSettings : ModSettings
 
     // 思考模式（仅 DeepSeek 等支持 reasoning 的模型有效）
     // 开启后 LLM 会输出 reasoning_content，消耗额外 token
-    public bool enableThinking = true;
+    public bool enableThinking = false;
 
     // 调试选项
-    public bool lowTokenMode = false;
+    public bool lowTokenMode = true;
     public bool debugMode = false;
     public DebugSimulationMode simulationMode = DebugSimulationMode.None;
 

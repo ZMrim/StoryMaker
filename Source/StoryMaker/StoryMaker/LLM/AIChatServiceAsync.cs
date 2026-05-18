@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using Verse;
 using StoryMaker.Core;
+using StoryMaker.Response;
 using StoryMaker.Schedule;
 
 namespace StoryMaker;
@@ -186,15 +187,15 @@ public class AIChatServiceAsync : MonoBehaviour
         var settings = StoryMaker.Instance?.Settings;
         var sb = new StringBuilder();
         sb.Append("{\"model\":\"");
-        sb.Append(EscapeJson(model));
+        sb.Append(JsonExtractor.EscapeJsonString(model));
         sb.Append("\",\"messages\":[");
         for (int i = 0; i < messages.Count; i++)
         {
             if (i > 0) sb.Append(',');
             sb.Append("{\"role\":\"");
-            sb.Append(EscapeJson(messages[i].role));
+            sb.Append(JsonExtractor.EscapeJsonString(messages[i].role));
             sb.Append("\",\"content\":\"");
-            sb.Append(EscapeJson(messages[i].content));
+            sb.Append(JsonExtractor.EscapeJsonString(messages[i].content));
             sb.Append("\"}");
         }
         sb.Append("],\"temperature\":0.7,\"max_tokens\":4096");
@@ -207,16 +208,6 @@ public class AIChatServiceAsync : MonoBehaviour
 
         sb.Append('}');
         return sb.ToString();
-    }
-
-    private static string EscapeJson(string s)
-    {
-        if (string.IsNullOrEmpty(s)) return "";
-        return s.Replace("\\", "\\\\")
-                .Replace("\"", "\\\"")
-                .Replace("\n", "\\n")
-                .Replace("\r", "\\r")
-                .Replace("\t", "\\t");
     }
 
     private static bool IsContextVersionCurrent(int version)

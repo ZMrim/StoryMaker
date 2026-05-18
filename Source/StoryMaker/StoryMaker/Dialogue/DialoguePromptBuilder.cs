@@ -60,19 +60,7 @@ public static class DialoguePromptBuilder
 
     private static string BuildEventListForPrompt()
     {
-        var categorized = IncidentWhitelist.GetCategorizedEvents();
-        if (categorized.Count == 0) return "";
-
-        var sb = new StringBuilder();
-        sb.AppendLine("## 支持的事件类型");
-        sb.AppendLine();
-
-        foreach (var kv in categorized)
-        {
-            sb.AppendLine($"[{kv.Key}] {string.Join(", ", kv.Value)}");
-        }
-
-        return sb.ToString();
+        return IncidentWhitelist.FormatEventListForPrompt();
     }
 
     private static string BuildUserContent(string playerInput, List<DialogueEntry> history,

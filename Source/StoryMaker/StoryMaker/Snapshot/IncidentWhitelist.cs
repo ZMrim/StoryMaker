@@ -77,4 +77,18 @@ public static class IncidentWhitelist
             .OrderBy(g => g.Key)
             .ToDictionary(g => g.Key, g => g.Select(kv => kv.Key).OrderBy(n => n).ToList());
     }
+
+    // 格式化为 prompt 文本（供 PromptBuilder 和 DialoguePromptBuilder 共用）
+    public static string FormatEventListForPrompt()
+    {
+        var categorized = GetCategorizedEvents();
+        if (categorized.Count == 0) return "";
+
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("## 支持的事件类型");
+        sb.AppendLine();
+        foreach (var kv in categorized)
+            sb.AppendLine($"[{kv.Key}] {string.Join(", ", kv.Value)}");
+        return sb.ToString();
+    }
 }

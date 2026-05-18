@@ -44,15 +44,6 @@ public class StoryMakerBottomTab : MainTabWindow
             statusKey = "StoryMaker_Status_Permanent";
             statusColor = Color.red;
         }
-        else if (state != null && !string.IsNullOrEmpty(state.degradationReason))
-        {
-            // 降级中 —— 显示降级原因
-            string degradedText = "StoryMaker_Status_Degraded".Translate() + " — " + state.degradationReason;
-            GUI.color = Color.yellow;
-            listing.Label("StoryMaker_BottomTab_Connection".Translate(degradedText));
-            GUI.color = Color.white;
-            return;
-        }
         else if (Schedule.EventScheduler.IsRequestLocked)
         {
             statusKey = "StoryMaker_Status_Requesting";

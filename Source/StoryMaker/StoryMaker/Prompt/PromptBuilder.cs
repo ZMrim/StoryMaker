@@ -135,13 +135,8 @@ public static class PromptBuilder
     private static string BuildEventListSection(bool lowToken)
     {
         // 低 Token 模式仍发送事件列表，但不发送 key events 说明
-        var categorized = IncidentWhitelist.GetCategorizedEvents();
-        var sb = new StringBuilder();
-        sb.AppendLine();
-        sb.AppendLine("## 支持的事件类型");
-        foreach (var group in categorized)
-            sb.AppendLine($"[{group.Key}] {string.Join(", ", group.Value)}");
-        return sb.ToString().TrimEnd();
+        string list = IncidentWhitelist.FormatEventListForPrompt();
+        return "\n" + (string.IsNullOrEmpty(list) ? "" : list);
     }
 
     private static string BuildKeyEventSection()

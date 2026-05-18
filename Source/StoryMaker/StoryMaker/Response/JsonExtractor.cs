@@ -298,12 +298,29 @@ public static class JsonExtractor
         return ExtractBool(jsonObj, key);
     }
 
-    // ── 辅助方法 ──
-
-    private static string ReadQuotedString(string json, int startQuote)
+    // ── 字符串转义（供各模块共用）──
+    // 将字符串转义为 JSON 安全的格式
+    public static string EscapeJsonString(string s)
     {
+        if (string.IsNullOrEmpty(s)) return "";
+        return s.Replace("\\", "\\\\")
+                .Replace("\"", "\\\"")
+                .Replace("\n", "\\n")
+                .Replace("\r", "\\r")
+                .Replace("\t", "\\t");
+    }
+
+    // ── 引用字符串读取（供 ResponseParser/DialogueResponseParser 共用）──
+    // 从 json 的 startQuote 位置（" 字符）开始读取一个 JSON 字符串值
+    // 返回解码后的字符串，endPos 为结束位置（" 之后）
+    public static string ReadQuotedString(string json, int startQuote, out int endPos)
+    {
+        endPos = startQuote;
+        if (startQuote >= json.Length || json[startQuote] != '"') return null;
+
         var sb = new StringBuilder();
-        for (int i = startQuote + 1; i < json.Length; i++)
+        int i = startQuote + 1;
+        while (i < json.Length)
         {
             char c = json[i];
             if (c == '\\' && i + 1 < json.Length)
@@ -311,26 +328,103 @@ public static class JsonExtractor
                 char next = json[i + 1];
                 switch (next)
                 {
-                    case '"': sb.Append('"'); break;
-                    case '\\': sb.Append('\\'); break;
-                    case 'n': sb.Append('\n'); break;
-                    case 'r': sb.Append('\r'); break;
-                    case 't': sb.Append('\t'); break;
-                    case 'u': sb.Append('?'); i += 5; break;  // 跳过 u + 4 位 hex，i++ 后共跳 6 字符
-                    default: sb.Append(next); break;
+                    case 'u':
+                        sb.Append('?');
+                        i += 6;  // 跳过 \uXXXX 共 6 个字符
+                        break;
+                    default:
+                        sb.Append(next switch
+                        {
+                            '"' => '"',
+                            '\\' => '\\',
+                            'n' => '\n',
+                            'r' => '\r',
+                            't' => '\t',
+                            _ => next
+                        });
+                        i += 2;  // 跳过 \X 共 2 个字符
+                        break;
                 }
-                i++;
             }
             else if (c == '"')
             {
+                endPos = i + 1;
                 return sb.ToString();
             }
             else
             {
                 sb.Append(c);
+                i++;
             }
         }
+        endPos = i;
         return sb.ToString();
+    }
+
+    // ── 对象内键值对提取（供 ResponseParser/DialogueResponseParser 共用）──
+    // 从形如 {"key1": "val1", "key2": 123} 的 JSON 对象字符串中提取所有键值对
+    public static Dictionary<string, string> ExtractKeyValuePairs(string objectJson)
+    {
+        var parameters = new Dictionary<string, string>();
+        if (string.IsNullOrWhiteSpace(objectJson)) return parameters;
+
+        int pos = 1; // 跳过开头的 {
+        while (pos < objectJson.Length - 1)
+        {
+            while (pos < objectJson.Length && char.IsWhiteSpace(objectJson[pos]))
+                pos++;
+            if (pos >= objectJson.Length - 1) break;
+
+            if (objectJson[pos] != '"') break;
+            string key = ReadQuotedString(objectJson, pos, out int keyEnd);
+            if (key == null) break;
+            pos = keyEnd;
+
+            int colonIdx = objectJson.IndexOf(':', pos);
+            if (colonIdx < 0) break;
+            pos = colonIdx + 1;
+
+            while (pos < objectJson.Length && char.IsWhiteSpace(objectJson[pos]))
+                pos++;
+
+            string value;
+            if (pos < objectJson.Length && objectJson[pos] == '"')
+            {
+                value = ReadQuotedString(objectJson, pos, out pos);
+            }
+            else if (pos < objectJson.Length && (char.IsDigit(objectJson[pos]) || objectJson[pos] == '-'))
+            {
+                int valEnd = pos;
+                while (valEnd < objectJson.Length && (char.IsDigit(objectJson[valEnd]) || objectJson[valEnd] == '-' || objectJson[valEnd] == '.'))
+                    valEnd++;
+                value = objectJson.Substring(pos, valEnd - pos);
+                pos = valEnd;
+            }
+            else if (pos < objectJson.Length && (objectJson[pos] == 't' || objectJson[pos] == 'f'))
+            {
+                int valEnd = pos;
+                while (valEnd < objectJson.Length && char.IsLetter(objectJson[valEnd]))
+                    valEnd++;
+                value = objectJson.Substring(pos, valEnd - pos);
+                pos = valEnd;
+            }
+            else { pos++; continue; }
+
+            if (key != null && value != null)
+                parameters[key] = value;
+
+            while (pos < objectJson.Length && (char.IsWhiteSpace(objectJson[pos]) || objectJson[pos] == ','))
+                pos++;
+        }
+
+        return parameters;
+    }
+
+    // ── 辅助方法 ──
+
+    private static string ReadQuotedString(string json, int startQuote)
+    {
+        return ReadQuotedString(json, startQuote, out _);
     }
 
     private static string ExtractBalanced(string json, int openIdx, char openChar, char closeChar)

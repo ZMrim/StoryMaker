@@ -21,6 +21,20 @@ public static class DebugLogger
 
     public static bool IsEnabled => StoryMaker.Instance?.Settings?.debugMode ?? false;
 
+    // 计数器递增方法
+    public static void RecordRetry() { if (IsEnabled) totalRetries++; }
+    public static void RecordGuardCorrection() { if (IsEnabled) totalGuardCorrections++; }
+    public static void RecordHttpError(string failureReason)
+    {
+        if (!IsEnabled) return;
+        totalHttpErrors++;
+        string key = failureReason ?? "unknown";
+        if (httpErrorBreakdown.ContainsKey(key))
+            httpErrorBreakdown[key]++;
+        else
+            httpErrorBreakdown[key] = 1;
+    }
+
     private static void EnsureSessionDir()
     {
         if (sessionDir != null) return;
@@ -109,13 +123,7 @@ public static class DebugLogger
     {
         if (!IsEnabled) return;
         EnsureSessionDir();
-
-        totalHttpErrors++;
-        string key = failureReason ?? "unknown";
-        if (httpErrorBreakdown.ContainsKey(key))
-            httpErrorBreakdown[key]++;
-        else
-            httpErrorBreakdown[key] = 1;
+        RecordHttpError(failureReason);
 
         string filename = $"{seq:D4}_error.md";
         string path = Path.Combine(sessionDir, filename);

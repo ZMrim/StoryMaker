@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
-using RimWorld;
 using Verse;
 
 namespace StoryMaker.Snapshot;
@@ -22,7 +20,6 @@ public static class SnapshotCollector
         fields.Add(new SnapshotField_FactionRelations());
         fields.Add(new SnapshotField_RecentEvents());
         fields.Add(new SnapshotField_RecentDeaths());
-        fields.Add(new SnapshotField_DeviationReport());
     }
 
     public static GameStateSnapshot Collect(int fromTick, int toTick)
@@ -72,7 +69,6 @@ public static class SnapshotCollector
             case "factionRelations": snapshot.factionRelations = (List<FactionRelationEntry>)value; break;
             case "recentEvents": snapshot.recentEvents = (List<RecentEventEntry>)value; break;
             case "recentDeaths": snapshot.recentDeaths = (List<DeathEntry>)value; break;
-            case "deviationReport": snapshot.deviationReport = (List<DeviationEntry>)value; break;
         }
     }
 

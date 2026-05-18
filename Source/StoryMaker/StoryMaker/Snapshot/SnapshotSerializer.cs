@@ -1,7 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Text;
-using Verse;
+using StoryMaker.Response;
 
 namespace StoryMaker.Snapshot;
 
@@ -20,7 +19,7 @@ public static class SnapshotSerializer
 
         // colony
         sb.AppendLine("  \"colony\": {");
-        sb.AppendLine($"    \"name\": \"{Escape(snapshot.colonyName)}\",");
+        sb.AppendLine($"    \"name\": \"{JsonExtractor.EscapeJsonString(snapshot.colonyName)}\",");
         sb.AppendLine($"    \"population\": {snapshot.population},");
         sb.AppendLine($"    \"average_mood\": {snapshot.averageMood:F2},");
         sb.AppendLine($"    \"food_days\": {snapshot.foodDays:F1},");
@@ -29,8 +28,8 @@ public static class SnapshotSerializer
 
         // environment
         sb.AppendLine("  \"environment\": {");
-        sb.AppendLine($"    \"season\": \"{Escape(snapshot.season)}\",");
-        sb.AppendLine($"    \"biome\": \"{Escape(snapshot.biome)}\",");
+        sb.AppendLine($"    \"season\": \"{JsonExtractor.EscapeJsonString(snapshot.season)}\",");
+        sb.AppendLine($"    \"biome\": \"{JsonExtractor.EscapeJsonString(snapshot.biome)}\",");
         sb.AppendLine($"    \"current_temperature\": {snapshot.currentTemperature:F1}");
         sb.AppendLine("  },");
 
@@ -59,7 +58,7 @@ public static class SnapshotSerializer
             {
                 var fr = list[i];
                 string comma = i < list.Count - 1 ? "," : "";
-                sb.AppendLine($"    {{ \"name\": \"{Escape(fr.name)}\", \"relation\": {fr.relation}, \"relation_kind\": \"{Escape(fr.relationKind)}\" }}{comma}");
+                sb.AppendLine($"    {{ \"name\": \"{JsonExtractor.EscapeJsonString(fr.name)}\", \"relation\": {fr.relation}, \"relation_kind\": \"{JsonExtractor.EscapeJsonString(fr.relationKind)}\" }}{comma}");
             }
         }
         sb.AppendLine("  ],");
@@ -74,7 +73,7 @@ public static class SnapshotSerializer
             {
                 var re = list[i];
                 string comma = i < list.Count - 1 ? "," : "";
-                sb.AppendLine($"    {{ \"event_type\": \"{Escape(re.event_type)}\", \"category\": \"{Escape(re.category)}\" }}{comma}");
+                sb.AppendLine($"    {{ \"event_type\": \"{JsonExtractor.EscapeJsonString(re.event_type)}\", \"category\": \"{JsonExtractor.EscapeJsonString(re.category)}\" }}{comma}");
             }
         }
         sb.AppendLine("  ],");
@@ -89,7 +88,7 @@ public static class SnapshotSerializer
             {
                 var de = list[i];
                 string comma = i < list.Count - 1 ? "," : "";
-                sb.AppendLine($"    {{ \"pawn_name\": \"{Escape(de.pawnName)}\" }}{comma}");
+                sb.AppendLine($"    {{ \"pawn_name\": \"{JsonExtractor.EscapeJsonString(de.pawnName)}\" }}{comma}");
             }
         }
         sb.AppendLine("  ],");
@@ -104,19 +103,10 @@ public static class SnapshotSerializer
             {
                 var de = list[i];
                 string comma = i < list.Count - 1 ? "," : "";
-                sb.AppendLine($"    {{ \"event_id\": \"{Escape(de.eventId)}\", \"event_type\": \"{Escape(de.eventType)}\", \"fail_reason\": \"{Escape(de.failReason)}\" }}{comma}");
+                sb.AppendLine($"    {{ \"event_id\": \"{JsonExtractor.EscapeJsonString(de.eventId)}\", \"event_type\": \"{JsonExtractor.EscapeJsonString(de.eventType)}\", \"fail_reason\": \"{JsonExtractor.EscapeJsonString(de.failReason)}\" }}{comma}");
             }
         }
         sb.AppendLine("  ]");
     }
 
-    private static string Escape(string str)
-    {
-        if (string.IsNullOrEmpty(str)) return "";
-        return str.Replace("\\", "\\\\")
-                  .Replace("\"", "\\\"")
-                  .Replace("\n", "\\n")
-                  .Replace("\r", "\\r")
-                  .Replace("\t", "\\t");
-    }
 }

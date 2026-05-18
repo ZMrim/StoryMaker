@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using RimWorld;
 using Verse;
 
@@ -187,14 +186,4 @@ class SnapshotField_RecentDeaths : ISnapshotField
     }
 }
 
-// ── 叙事反馈字段（Phase 1 占位）──
-
-class SnapshotField_DeviationReport : ISnapshotField
-{
-    public string Key => "deviationReport";
-    public bool IncludeInLowTokenMode => false;
-    public object Collect()
-    {
-        return new List<DeviationEntry>();
-    }
-}
+// ── 叙事反馈字段 —— deviation_report 由 EventScheduler 在采集后直接填充（ActionExecutor.PopFailedEvents()），此字段不可删除但采集逻辑已外置

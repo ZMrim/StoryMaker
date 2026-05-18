@@ -66,14 +66,15 @@ public class StoryMakerSettings : ModSettings
     public override void ExposeData()
     {
         // Phase 1 参数
-        Scribe_Values.Look(ref bufferDays, "bufferDays", 2);
+        Scribe_Values.Look(ref bufferDays, "bufferDays", 3);
         Scribe_Values.Look(ref planWindowDays, "planWindowDays", 5);
         Scribe_Values.Look(ref timeoutSeconds, "timeoutSeconds", 60f);
         Scribe_Values.Look(ref maxRetransmissions, "maxRetransmissions", 2);
+        Scribe_Values.Look(ref staleThresholdDays, "staleThresholdDays", 15);
         Scribe_Values.Look(ref playerPersonality, "playerPersonality", "");
         Scribe_Collections.Look(ref deathRaceWhitelist, "deathRaceWhitelist", LookMode.Value);
-        Scribe_Values.Look(ref enableThinking, "enableThinking", true);
-        Scribe_Values.Look(ref lowTokenMode, "lowTokenMode", false);
+        Scribe_Values.Look(ref enableThinking, "enableThinking", false);
+        Scribe_Values.Look(ref lowTokenMode, "lowTokenMode", true);
         Scribe_Values.Look(ref debugMode, "debugMode", false);
         Scribe_Values.Look(ref simulationMode, "simulationMode", DebugSimulationMode.None);
 

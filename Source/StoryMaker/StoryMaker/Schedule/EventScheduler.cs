@@ -145,6 +145,7 @@ public static class EventScheduler
     {
         Log.Warning($"[StoryMaker] 触发重传 (剩余={requestLock.RetransmitRemaining})");
 
+        DebugLogger.RecordRetry();
         DebugSimulator.RecordRetransmission();
 
         bool simulated = DebugSimulator.SimulateIfActive(OnResponseReceived, OnResponseError);
@@ -379,6 +380,7 @@ public static class EventScheduler
 
                 if (ShouldRetry(violation.ViolationTag))
                 {
+                    DebugLogger.RecordGuardCorrection();
                     string correction = FormatCorrectionMessages.Build(violation);
                     if (!string.IsNullOrEmpty(correction))
                     {
@@ -403,6 +405,7 @@ public static class EventScheduler
                 if (emptyRetryCount < 1)
                 {
                     emptyRetryCount++;
+                    DebugLogger.RecordGuardCorrection();
                     lastMessages.Add(new ChatMessage { role = "user", content = emptyCorrection });
                     Log.Message("[StoryMaker] EmptyPlanGuard: 强制修正重试");
                     requestLock.ResetTimer();
@@ -466,6 +469,7 @@ public static class EventScheduler
             // ACK 推进
             SetAck(response.plan_range.to_tick);
             Log.Message($"[StoryMaker] ACK 推进至 {ack}, 队列深度={eventQueue.Count}, {validEvents?.Count ?? 0} 个新事件入队");
+            if (DebugLogger.IsEnabled) DebugLogger.WriteSummary();
         }
         catch (Exception ex)
         {
@@ -479,7 +483,10 @@ public static class EventScheduler
         Log.Error($"[StoryMaker] HTTP 错误: failure_reason={failureReason}, 详情={errorMessage}");
 
         if (DebugLogger.IsEnabled)
+        {
             DebugLogger.LogError(lastRequestSeq, errorMessage, failureReason);
+            DebugLogger.WriteSummary();
+        }
 
         // HTTP 401/404 —— 不重试，直接降级弹窗
         if (failureReason == "http_401" || failureReason == "http_404")
@@ -521,7 +528,7 @@ public static class EventScheduler
             sb.AppendLine($"  \"parse_success\": {result.IsSuccess.ToString().ToLower()},");
             sb.AppendLine($"  \"plan_range\": {{ \"from_tick\": {evt.plan_range?.from_tick ?? 0}, \"to_tick\": {evt.plan_range?.to_tick ?? 0} }},");
             sb.AppendLine($"  \"empty_plan\": {evt.empty_plan.ToString().ToLower()},");
-            sb.AppendLine($"  \"narrative_summary\": \"{EscapeForJson(evt.narrative_summary ?? "")}\",");
+            sb.AppendLine($"  \"narrative_summary\": \"{JsonExtractor.EscapeJsonString(evt.narrative_summary ?? "")}\",");
             sb.AppendLine($"  \"event_count\": {evt.events?.Count ?? 0},");
 
             if (result.ParseGuardResult != null)
@@ -567,9 +574,4 @@ public static class EventScheduler
         return sb.ToString();
     }
 
-    private static string EscapeForJson(string s)
-    {
-        if (string.IsNullOrEmpty(s)) return "";
-        return s.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n").Replace("\r", "\\r");
-    }
 }

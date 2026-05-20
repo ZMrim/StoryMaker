@@ -86,9 +86,14 @@ public static class IncidentWhitelist
 
         var sb = new System.Text.StringBuilder();
         sb.AppendLine("## 支持的事件类型");
+        sb.AppendLine("只允许从“可选事件”中选择事件名输入，严禁选择如`Misc`这样的类别名。");
         sb.AppendLine();
         foreach (var kv in categorized)
-            sb.AppendLine($"[{kv.Key}] {string.Join(", ", kv.Value)}");
+        {
+            sb.AppendLine($"###{kv.Key} \n可选事件: {string.Join(", ", kv.Value)}");
+            // sb.AppendLine($"{string.Join(", ", kv.Value)}");
+        }
+            
         return sb.ToString();
     }
 }

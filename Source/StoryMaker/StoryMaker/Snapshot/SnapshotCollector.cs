@@ -24,30 +24,49 @@ public static class SnapshotCollector
 
     public static GameStateSnapshot Collect(int fromTick, int toTick)
     {
+        var snapshot = CollectBaseFields();
+        snapshot.fromTick = fromTick;
+        snapshot.toTick = toTick;
+
+        bool lowTokenMode = StoryMaker.Instance?.Settings?.lowTokenMode ?? false;
+
+        // 消费型字段（需要 Pop 的）
+        foreach (var field in fields)
+        {
+            if (field.Key != "recentEvents" && field.Key != "recentDeaths")
+                continue;
+            if (lowTokenMode && !field.IncludeInLowTokenMode)
+                continue;
+            try { ApplyField(snapshot, field); }
+            catch (System.Exception ex) { Log.Warning($"[StoryMaker] 快照字段 '{field.Key}' 采集失败: {ex.Message}"); }
+        }
+
+        return snapshot;
+    }
+
+    // 采集不消耗事件栈的殖民地基础数据（colony / environment / faction），
+    // 供对话模块等无需 tick 范围的场景复用。
+    public static GameStateSnapshot CollectColonyState()
+    {
+        return CollectBaseFields();
+    }
+
+    private static GameStateSnapshot CollectBaseFields()
+    {
         var snapshot = new GameStateSnapshot
         {
-            fromTick = fromTick,
-            toTick = toTick,
             factionRelations = new List<FactionRelationEntry>(),
             recentEvents = new List<RecentEventEntry>(),
             recentDeaths = new List<DeathEntry>(),
             deviationReport = new List<DeviationEntry>()
         };
 
-        bool lowTokenMode = StoryMaker.Instance?.Settings?.lowTokenMode ?? false;
-
         foreach (var field in fields)
         {
-            if (lowTokenMode && !field.IncludeInLowTokenMode)
+            if (field.Key == "recentEvents" || field.Key == "recentDeaths")
                 continue;
-            try
-            {
-                ApplyField(snapshot, field);
-            }
-            catch (System.Exception ex)
-            {
-                Log.Warning($"[StoryMaker] 快照字段 '{field.Key}' 采集失败: {ex.Message}");
-            }
+            try { ApplyField(snapshot, field); }
+            catch (System.Exception ex) { Log.Warning($"[StoryMaker] 快照字段 '{field.Key}' 采集失败: {ex.Message}"); }
         }
 
         return snapshot;

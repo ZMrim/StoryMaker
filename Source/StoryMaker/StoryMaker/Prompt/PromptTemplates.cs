@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Verse;
@@ -8,53 +10,84 @@ public static class PromptTemplates
 {
     public static string ModRootDir { get; set; }
 
-    private static string cachedCn, cachedEn;
-    private static string cachedCnLow, cachedEnLow;
-    private static string cachedDialogueCn, cachedDialogueEn;
+    private static string cachedCn, cachedCnLow;
+    private static string cachedDialogueCn;
+    private static Dictionary<string, string> cachedDifficulty;
+    private static Dictionary<string, string> cachedDensity;
+
+    // 获取玩家游戏语言的可读名称，用于提示 LLM 回复语言
+    public static string GetPlayerLanguageName()
+    {
+        string native = LanguageDatabase.activeLanguage?.FriendlyNameNative;
+        if (!string.IsNullOrEmpty(native)) return native;
+        return "English";
+    }
 
     public static string GetDialogueSystemPrompt()
     {
-        bool isChinese = (Prefs.LangFolderName ?? "").StartsWith("Chinese");
-
-        if (isChinese)
-        {
-            if (cachedDialogueCn == null)
-                cachedDialogueCn = LoadTemplate("DialoguePrompt_CN.txt");
-            return cachedDialogueCn;
-        }
-
-        if (cachedDialogueEn == null)
-            cachedDialogueEn = LoadTemplate("DialoguePrompt_EN.txt");
-        return cachedDialogueEn;
+        if (cachedDialogueCn == null)
+            cachedDialogueCn = LoadTemplate("DialoguePrompt_CN.txt");
+        return cachedDialogueCn;
     }
 
     public static string GetSystemPrompt(bool lowToken)
     {
-        bool isChinese = (Prefs.LangFolderName ?? "").StartsWith("Chinese");
-
-        if (isChinese)
-        {
-            if (lowToken)
-            {
-                if (cachedCnLow == null)
-                    cachedCnLow = LoadTemplate("SystemPrompt_CN_LowToken.txt");
-                return cachedCnLow;
-            }
-            if (cachedCn == null)
-                cachedCn = LoadTemplate("SystemPrompt_CN.txt");
-            return cachedCn;
-        }
-
         if (lowToken)
         {
-            if (cachedEnLow == null)
-                cachedEnLow = LoadTemplate("SystemPrompt_EN_LowToken.txt");
-            return cachedEnLow;
+            if (cachedCnLow == null)
+                cachedCnLow = LoadTemplate("SystemPrompt_CN_LowToken.txt");
+            return cachedCnLow;
         }
-        if (cachedEn == null)
-            cachedEn = LoadTemplate("SystemPrompt_EN.txt");
-        return cachedEn;
+        if (cachedCn == null)
+            cachedCn = LoadTemplate("SystemPrompt_CN.txt");
+        return cachedCn;
     }
+
+    // ---- 难度 / 密度提示词片段 ----
+
+    public static string GetDifficultyPrompt(string level)
+    {
+        if (cachedDifficulty == null) LoadDifficultyFiles();
+        return cachedDifficulty.TryGetValue(level, out string content) ? content : "";
+    }
+
+    public static string GetDensityPrompt(string level)
+    {
+        if (cachedDensity == null) LoadDensityFiles();
+        return cachedDensity.TryGetValue(level, out string content) ? content : "";
+    }
+
+    private static void LoadDifficultyFiles()
+    {
+        cachedDifficulty = new Dictionary<string, string>();
+        foreach (string level in Enum.GetNames(typeof(DifficultyLevel)))
+        {
+            string content = LoadDataFile($"Difficulty_{level}.txt");
+            if (!string.IsNullOrWhiteSpace(content))
+                cachedDifficulty[level] = content;
+        }
+    }
+
+    private static void LoadDensityFiles()
+    {
+        cachedDensity = new Dictionary<string, string>();
+        foreach (string level in Enum.GetNames(typeof(DensityLevel)))
+        {
+            string content = LoadDataFile($"Density_{level}.txt");
+            if (!string.IsNullOrWhiteSpace(content))
+                cachedDensity[level] = content;
+        }
+    }
+
+    private static string LoadDataFile(string filename)
+    {
+        if (string.IsNullOrWhiteSpace(ModRootDir)) return "";
+        string path = Path.Combine(ModRootDir, "Resources", "PromptData", "CN", filename);
+        if (!File.Exists(path)) return "";
+        return File.ReadAllText(path, Encoding.UTF8);
+    }
+
+    // ----
 
     private static string LoadTemplate(string filename)
     {
@@ -95,8 +128,6 @@ request_range: {from_tick,to_tick} 规划时间范围
 ## 规则
 scheduled_tick必为2500整数倍。勿在文本中提数值。每窗口0~4事件。empty_plan可声明空窗口。
 
-{injections}
-
-用相同语言回复。";
+{injections}";
     }
 }

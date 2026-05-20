@@ -1,0 +1,5 @@
+叙事难度：残忍。
+负面事件的概率不低于50%，负面事件中疾病事件概率约为10%，RaidEnemy概率不低于为50%。
+intensity_multiplier参数可选1.0~2.0。
+检查 recent_events。如果近期没有发生过RaidEnemy，本窗口至少安排一个RaidEnemy事件。
+

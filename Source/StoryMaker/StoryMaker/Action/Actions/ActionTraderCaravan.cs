@@ -20,14 +20,18 @@ public class ActionTraderCaravan : IActionHandler
 
         IncidentParms parms = StorytellerUtility.DefaultParmsNow(evt.resolvedDef.category, map);
 
-        // 1. 派系（可选）
-        string factionName = evt.GetStringParam("faction");
-        if (!string.IsNullOrEmpty(factionName))
+        // 1. 派系（LLM 返回 defName，通过 FactionDef 精确匹配）
+        string factionDefName = evt.GetStringParam("faction");
+        if (!string.IsNullOrEmpty(factionDefName))
         {
-            var faction = Find.FactionManager.AllFactionsListForReading
-                .FirstOrDefault(f => f.Name == factionName && !f.HostileTo(Faction.OfPlayer) && !f.IsPlayer);
-            if (faction != null)
-                parms.faction = faction;
+            var factionDef = DefDatabase<FactionDef>.GetNamed(factionDefName, false);
+            if (factionDef != null)
+            {
+                var faction = Find.FactionManager.AllFactionsListForReading
+                    .FirstOrDefault(f => f.def == factionDef && !f.HostileTo(Faction.OfPlayer) && !f.IsPlayer);
+                if (faction != null)
+                    parms.faction = faction;
+            }
         }
 
         // 2. 商队类型（可选）

@@ -7,10 +7,9 @@ using Verse;
 
 namespace StoryMaker.Dialogue;
 
-// 对话专用 Prompt 构建：轻量殖民地数据 + 对话历史 + 玩家输入
+// 对话专用 Prompt 构建：通过 SnapshotCollector 获取殖民地数据 + 对话历史 + 玩家输入
 public static class DialoguePromptBuilder
 {
-    // 对话历史最大保留轮数
     private const int MaxDialogueHistory = 5;
 
     public static List<ChatMessage> Build(string playerInput, List<DialogueEntry> history,
@@ -32,35 +31,19 @@ public static class DialoguePromptBuilder
     private static string BuildSystemPrompt()
     {
         string template = PromptTemplates.GetDialogueSystemPrompt();
-        var state = StoryMakerState.Instance;
-        var settings = StoryMaker.Instance?.Settings;
 
-        // 事件列表（复用调度用的全量事件清单）
-        string eventList = BuildEventListForPrompt();
+        string eventList = IncidentWhitelist.FormatEventListForPrompt();
 
-        // 玩家个性化
-        string personality = "";
-        if (!string.IsNullOrEmpty(settings?.playerPersonality))
-        {
-            personality = "## 玩家自定义叙事风格\n\n" + settings.playerPersonality;
-        }
-        else
-        {
+        string personality = PromptBuilder.BuildPersonalitySection();
+        if (string.IsNullOrEmpty(personality))
             personality = "## 玩家自定义叙事风格\n\n你是一个经典的 RimWorld 叙事者。";
-        }
 
-        // 外接注入
         string injections = PromptInjector.BuildInjectedSection();
 
         return template
             .Replace("{event_list}", eventList)
             .Replace("{personality}", personality)
             .Replace("{injections}", injections);
-    }
-
-    private static string BuildEventListForPrompt()
-    {
-        return IncidentWhitelist.FormatEventListForPrompt();
     }
 
     private static string BuildUserContent(string playerInput, List<DialogueEntry> history,
@@ -86,75 +69,44 @@ public static class DialoguePromptBuilder
             }
         }
 
-        // 当前殖民地状态（轻量版）
+        // 当前殖民地状态（通过统一快照工具采集）
         sb.AppendLine("## 当前殖民地状态");
         sb.AppendLine(BuildColonySnapshot(curTick));
         sb.AppendLine();
 
-        // 玩家输入
         sb.AppendLine($"殖民者对你说: \"{playerInput}\"");
         sb.AppendLine();
-        sb.AppendLine("请以叙事者身份回复。");
+        sb.AppendLine($"请以叙事者身份回复。请使用{PromptTemplates.GetPlayerLanguageName()}。");
 
         return sb.ToString();
     }
 
+    // 使用 SnapshotCollector 统一采集殖民地数据，自行格式化为对话专用轻量文本
     private static string BuildColonySnapshot(int curTick)
     {
-        var map = Find.CurrentMap ?? Find.AnyPlayerHomeMap;
-        if (map == null) return "无法获取殖民地数据。";
-
+        var snap = SnapshotCollector.CollectColonyState();
         var sb = new StringBuilder();
 
         // colony
-        var colonists = map.mapPawns.FreeColonists;
-        int pop = colonists?.Count ?? 0;
-        float mood = 0.5f;
-        if (pop > 0)
-        {
-            float totalMood = 0f;
-            foreach (var c in colonists)
-            {
-                if (c.needs?.mood != null)
-                    totalMood += c.needs.mood.CurLevel;
-            }
-            mood = totalMood / pop;
-        }
-        // 计算食物天数
-        float totalNutrition = 0f;
-        foreach (var thing in map.listerThings.AllThings)
-        {
-            if (thing.def.IsIngestible && thing.def.ingestible.HumanEdible && !(thing is Plant))
-                totalNutrition += thing.GetStatValue(StatDefOf.Nutrition) * thing.stackCount;
-        }
-        float foodDays = pop > 0 ? totalNutrition / (pop * 1.6f) : 999f;
-        float wealth = map.wealthWatcher?.WealthTotal ?? 0;
-
-        sb.AppendLine($"colony: name=\"{map.Parent?.Label ?? "殖民地"}\", population={pop}, average_mood={mood:F2}, food_days={foodDays:F1}, total_wealth={wealth:F0}");
+        sb.AppendLine($"colony: name=\"{snap.colonyName}\", population={snap.population}, average_mood={snap.averageMood:F2}, food_days={snap.foodDays:F1}, total_wealth={snap.totalWealth:F0}");
 
         // environment
-        string season = GenLocalDate.Season(map).ToString();
-        string biome = map.Biome?.LabelCap ?? "未知";
-        float temp = map.mapTemperature?.OutdoorTemp ?? 0;
-        sb.AppendLine($"environment: season={season}, biome={biome}, current_temperature={temp:F1}°C");
+        sb.AppendLine($"environment: season={snap.season}, biome={snap.biome}, current_temperature={snap.currentTemperature:F1}°C");
 
-        // faction_relations
-        var factions = Find.FactionManager?.AllFactionsListForReading;
-        if (factions != null && factions.Count > 0)
+        // faction_relations（摘要格式：defName + relation_kind）
+        if (snap.factionRelations != null && snap.factionRelations.Count > 0)
         {
             sb.Append("faction_relations: [");
             bool first = true;
-            foreach (var f in factions)
+            foreach (var fr in snap.factionRelations)
             {
-                if (f.IsPlayer || f.defeated || f.def?.permanentEnemy == true) continue;
                 if (!first) sb.Append(", ");
-                sb.Append($"{{name=\"{f.Name}\", relation={f.PlayerRelationKind}}}");
+                sb.Append($"{{def_name=\"{fr.defName}\", label=\"{fr.label}\", relation={fr.relationKind}}}");
                 first = false;
             }
             sb.AppendLine("]");
         }
 
-        // current_day
         int day = curTick / 60000;
         sb.AppendLine($"current_day: 第 {day} 天");
 

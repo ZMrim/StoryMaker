@@ -1,0 +1,5 @@
+叙事难度：仁慈。
+负面事件的概率低于20%，负面事件中疾病事件概率低于5%，RaidEnemy概率约为30%。
+intensity_multiplier参数可选0.5~0.8。
+检查 recent_events。如果近期发生过ThreatBig，本窗口禁止安排任何ThreatBig。如果近期发生过疾病事件，本窗口禁止安排任何疾病事件。
+检查recent_deaths。如果近期有殖民者死亡，本窗口禁止安排任何ThreatBig。

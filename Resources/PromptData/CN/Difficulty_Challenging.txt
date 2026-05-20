@@ -1,0 +1,5 @@
+叙事难度：挑战。
+负面事件的概率约为40%，负面事件中疾病事件概率约为10%，RaidEnemy概率不低于为50%，但禁止连续RaidEnemy。
+intensity_multiplier参数可选1.0~1.5。
+检查 recent_events。如果近期发生过RaidEnemy，本窗口intensity_multiplier参数只能为1。
+检查recent_deaths。如果近期有殖民者死亡，RaidEnemy事件概率降低为原来的70%。

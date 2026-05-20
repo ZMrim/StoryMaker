@@ -53,8 +53,7 @@ public static class PromptBuilder
 
     private static void EnsureDataLoaded(bool lowToken)
     {
-        bool isChinese = (Prefs.LangFolderName ?? "").StartsWith("Chinese");
-        string lang = isChinese ? "CN" : "EN";
+        const string lang = "CN";  // 始终使用中文数据
 
         if (lang == lastLang && lowToken == lastLowToken && cachedCategories != null)
             return;
@@ -66,12 +65,12 @@ public static class PromptBuilder
 
         string catFile = lowToken ? "Categories_LowToken.txt" : "Categories.txt";
         cachedCategories = LoadKeyValueFile(Path.Combine(dataDir, catFile))
-            ?? GetFallbackCategories(lang, lowToken);
+            ?? GetFallbackCategories(lowToken);
 
         // 低 Token 模式不加载关键事件说明
         if (!lowToken)
             cachedKeyEvents = LoadKeyValueFile(Path.Combine(dataDir, "KeyEvents.txt"))
-                ?? GetFallbackKeyEvents(lang);
+                ?? GetFallbackKeyEvents();
         else
             cachedKeyEvents = null;
     }
@@ -99,24 +98,16 @@ public static class PromptBuilder
         return dict.Count > 0 ? dict : null;
     }
 
-    private static Dictionary<string, string> GetFallbackCategories(string lang, bool lowToken)
+    private static Dictionary<string, string> GetFallbackCategories(bool lowToken)
     {
         if (lowToken)
-        {
-            return lang == "CN"
-                ? new() { {"ThreatBig", "大型威胁"}, {"ThreatSmall", "小型威胁"}, {"Misc", "杂项"} }
-                : new() { {"ThreatBig", "Major threat"}, {"ThreatSmall", "Minor threat"}, {"Misc", "Misc"} };
-        }
-        return lang == "CN"
-            ? new() { {"ThreatBig", "大型威胁事件（袭击、虫害、机械族等）"}, {"ThreatSmall", "小型威胁事件"}, {"Misc", "杂项事件"} }
-            : new() { {"ThreatBig", "Major threat events"}, {"ThreatSmall", "Minor threat events"}, {"Misc", "Misc events"} };
+            return new() { {"ThreatBig", "大型威胁"}, {"ThreatSmall", "小型威胁"}, {"Misc", "杂项"} };
+        return new() { {"ThreatBig", "大型威胁事件（袭击、虫害、机械族等）"}, {"ThreatSmall", "小型威胁事件"}, {"Misc", "杂项事件"} };
     }
 
-    private static Dictionary<string, string> GetFallbackKeyEvents(string lang)
+    private static Dictionary<string, string> GetFallbackKeyEvents()
     {
-        return lang == "CN"
-            ? new() { {"ColdSnap", "寒流"}, {"HeatWave", "热浪"}, {"PsychicDrone", "心灵噪音"}, {"PsychicSoothe", "心灵抚慰波"} }
-            : new() { {"ColdSnap", "Cold snap"}, {"HeatWave", "Heat wave"}, {"PsychicDrone", "Psychic drone"}, {"PsychicSoothe", "Psychic soothe"} };
+        return new() { {"ColdSnap", "寒流"}, {"HeatWave", "热浪"}, {"PsychicDrone", "心灵噪音"}, {"PsychicSoothe", "心灵抚慰波"} };
     }
 
     // ---- Prompt 节构建 ----
@@ -150,16 +141,46 @@ public static class PromptBuilder
         return sb.ToString().TrimEnd();
     }
 
-    private static string BuildPersonalitySection()
+    internal static string BuildPersonalitySection()
     {
-        string personality = StoryMaker.Instance?.Settings?.playerPersonality ?? "";
-        if (string.IsNullOrWhiteSpace(personality)) return "";
+        var settings = StoryMaker.Instance?.Settings;
+        if (settings == null) return "";
 
-        // 检测当前语言以确定标题
-        bool isChinese = (Prefs.LangFolderName ?? "").StartsWith("Chinese");
-        string title = isChinese ? "## 玩家自定义叙事风格" : "## Player-Defined Storyteller Style";
+        string diffContent = PromptTemplates.GetDifficultyPrompt(settings.difficultyLevel.ToString());
+        string densContent = PromptTemplates.GetDensityPrompt(settings.densityLevel.ToString());
+        string persona = (settings.storytellerPersona ?? "").Trim();
 
-        return $"\n{title}\n{personality.Trim()}";
+        if (string.IsNullOrWhiteSpace(diffContent) && string.IsNullOrWhiteSpace(densContent) && string.IsNullOrWhiteSpace(persona))
+            return "";
+
+        var sb = new StringBuilder();
+        sb.AppendLine();
+        sb.AppendLine("## 玩家自定义叙事风格");
+
+        if (!string.IsNullOrWhiteSpace(diffContent))
+        {
+            sb.AppendLine();
+            sb.AppendLine("### 叙事难度");
+            sb.Append(diffContent.TrimEnd());
+        }
+
+        if (!string.IsNullOrWhiteSpace(densContent))
+        {
+            sb.AppendLine();
+            sb.AppendLine();
+            sb.AppendLine("### 叙事密度");
+            sb.Append(densContent.TrimEnd());
+        }
+
+        if (!string.IsNullOrWhiteSpace(persona))
+        {
+            sb.AppendLine();
+            sb.AppendLine();
+            sb.AppendLine("### 叙事者人设");
+            sb.Append(persona);
+        }
+
+        return sb.ToString().TrimEnd();
     }
 
     private static string BuildUserMessage(GameStateSnapshot snapshot, int fromTick, int toTick, bool lowToken)
@@ -170,6 +191,8 @@ public static class PromptBuilder
             ? $"\n规划tick {fromTick}-{toTick}。scheduled_tick为2500整数倍。勿在文本中提数值。"
             : $"\n请规划 tick {fromTick} 至 tick {toTick} 范围内的事件。每个事件的 scheduled_tick 精确到小时（2500 整倍数）。勿在叙事文本中提及事件点数。";
 
-        return "以下是殖民地状态数据，请据此规划游戏事件：\n\n```json\n" + json + "\n```" + tickInstruction;
+        string langInstruction = $"\n请使用{PromptTemplates.GetPlayerLanguageName()}回复。";
+
+        return "以下是殖民地状态数据，请据此规划游戏事件：\n\n```json\n" + json + "\n```" + tickInstruction + langInstruction;
     }
 }

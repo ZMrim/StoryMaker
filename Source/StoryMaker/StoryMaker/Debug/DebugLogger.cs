@@ -39,11 +39,7 @@ public static class DebugLogger
     {
         if (sessionDir != null) return;
 
-        string logRoot = Path.Combine(
-            Path.GetDirectoryName(GenFilePaths.SaveDataFolderPath)
-                ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "Ludeon Studios", "RimWorld by Ludeon Studios"),
-            "StoryMaker_DebugLogs");
+        string logRoot = Path.Combine(Directory.GetParent(GenFilePaths.ConfigFolderPath).FullName, "StoryMakerDebugLogs");
 
         Directory.CreateDirectory(logRoot);
 

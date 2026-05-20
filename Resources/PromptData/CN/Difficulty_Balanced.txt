@@ -1,0 +1,5 @@
+叙事难度：均衡。
+负面事件的概率约为30%，负面事件中疾病事件概率低于10%，RaidEnemy概率约为50%。同一窗口内禁止安排多个RaidEnemy。
+intensity_multiplier参数可选0.8~1.2。
+检查 recent_events。如果近期发生过RaidEnemy，本窗口RaidEnemy概率再下降50%。如果近期发生过疾病事件，本窗口禁止安排任何疾病事件。
+检查recent_deaths。如果近期有殖民者死亡，本窗口intensity_multiplier参数禁止超过1。

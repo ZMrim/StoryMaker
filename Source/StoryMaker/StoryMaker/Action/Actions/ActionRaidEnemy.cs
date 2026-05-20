@@ -22,21 +22,26 @@ public class ActionRaidEnemy : IActionHandler
 
         bool isFriendly = evt.event_type == "RaidFriendly";
 
-        // 派系
-        string factionName = evt.GetStringParam("faction");
-        if (!string.IsNullOrEmpty(factionName))
+        // 派系（LLM 返回 defName，通过 FactionDef 精确匹配）
+        string factionDefName = evt.GetStringParam("faction");
+        if (!string.IsNullOrEmpty(factionDefName))
         {
-            var faction = Find.FactionManager.AllFactionsListForReading
-                .FirstOrDefault(f =>
-                {
-                    if (f.Name != factionName) return false;
-                    // RaidFriendly 需要盟友派系，RaidEnemy 需要敌对派系
-                    return isFriendly ? !f.HostileTo(Faction.OfPlayer) : f.HostileTo(Faction.OfPlayer);
-                });
-            if (faction != null && !faction.IsPlayer)
-                parms.faction = faction;
+            var factionDef = DefDatabase<FactionDef>.GetNamed(factionDefName, false);
+            if (factionDef != null)
+            {
+                var faction = Find.FactionManager.AllFactionsListForReading
+                    .FirstOrDefault(f =>
+                    {
+                        if (f.def != factionDef) return false;
+                        return isFriendly ? !f.HostileTo(Faction.OfPlayer) : f.HostileTo(Faction.OfPlayer);
+                    });
+                if (faction != null && !faction.IsPlayer)
+                    parms.faction = faction;
+                else
+                    Log.Message($"[StoryMaker]   LLM 指定派系 '{factionDefName}' 当前不匹配 ({evt.event_type})，原版自动选择");
+            }
             else
-                Log.Message($"[StoryMaker]   LLM 指定派系 '{factionName}' 未找到或不匹配 ({evt.event_type})，原版自动选择");
+                Log.Message($"[StoryMaker]   LLM 指定派系 defName='{factionDefName}' 不在 FactionDef 数据库中，原版自动选择");
         }
 
         // 强度乘数

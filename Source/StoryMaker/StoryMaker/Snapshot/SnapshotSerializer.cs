@@ -58,7 +58,7 @@ public static class SnapshotSerializer
             {
                 var fr = list[i];
                 string comma = i < list.Count - 1 ? "," : "";
-                sb.AppendLine($"    {{ \"name\": \"{JsonExtractor.EscapeJsonString(fr.name)}\", \"relation\": {fr.relation}, \"relation_kind\": \"{JsonExtractor.EscapeJsonString(fr.relationKind)}\" }}{comma}");
+                sb.AppendLine($"    {{ \"def_name\": \"{JsonExtractor.EscapeJsonString(fr.defName)}\", \"label\": \"{JsonExtractor.EscapeJsonString(fr.label)}\", \"relation\": {fr.relation}, \"relation_kind\": \"{fr.relationKind}\" }}{comma}");
             }
         }
         sb.AppendLine("  ],");

@@ -16,8 +16,22 @@
   <StoryMaker_Settings_ApiKey>API Key</StoryMaker_Settings_ApiKey>
   <StoryMaker_Settings_ModelName>模型名称</StoryMaker_Settings_ModelName>
   <StoryMaker_Settings_CustomUrl>自定义 URL</StoryMaker_Settings_CustomUrl>
-  <StoryMaker_Settings_PersonalitySection>叙事者个性化</StoryMaker_Settings_PersonalitySection>
-  <StoryMaker_Settings_PersonalityDesc>用自然语言描述你希望叙事者具备的性格和风格（建议 200 字以内）:</StoryMaker_Settings_PersonalityDesc>
+  <StoryMaker_Settings_PersonalitySection>玩家自定义叙事风格</StoryMaker_Settings_PersonalitySection>
+  <StoryMaker_Settings_Difficulty>叙事难度</StoryMaker_Settings_Difficulty>
+  <StoryMaker_Settings_Density>叙事密度</StoryMaker_Settings_Density>
+  <StoryMaker_Settings_Persona>叙事者人设（用自然语言描述你希望叙事者具备的性格和风格）:</StoryMaker_Settings_Persona>
+
+  <!-- 叙事难度选项 -->
+  <StoryMaker_Difficulty_Merciful>仁慈</StoryMaker_Difficulty_Merciful>
+  <StoryMaker_Difficulty_Balanced>均衡</StoryMaker_Difficulty_Balanced>
+  <StoryMaker_Difficulty_Challenging>挑战</StoryMaker_Difficulty_Challenging>
+  <StoryMaker_Difficulty_Cruel>残忍</StoryMaker_Difficulty_Cruel>
+
+  <!-- 叙事密度选项 -->
+  <StoryMaker_Density_Silent>沉默</StoryMaker_Density_Silent>
+  <StoryMaker_Density_Balanced>均衡</StoryMaker_Density_Balanced>
+  <StoryMaker_Density_Chatty>碎嘴</StoryMaker_Density_Chatty>
+  <StoryMaker_Density_Talkative>话痨</StoryMaker_Density_Talkative>
 
   <!-- ================================================================ -->
   <!-- 高级设置页 -->

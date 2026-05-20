@@ -16,8 +16,22 @@
   <StoryMaker_Settings_ApiKey>API Key</StoryMaker_Settings_ApiKey>
   <StoryMaker_Settings_ModelName>Model Name</StoryMaker_Settings_ModelName>
   <StoryMaker_Settings_CustomUrl>Custom URL</StoryMaker_Settings_CustomUrl>
-  <StoryMaker_Settings_PersonalitySection>Storyteller Personality</StoryMaker_Settings_PersonalitySection>
-  <StoryMaker_Settings_PersonalityDesc>Describe the personality and style you want the storyteller to have (recommended &lt;200 characters):</StoryMaker_Settings_PersonalityDesc>
+  <StoryMaker_Settings_PersonalitySection>Player Custom Storytelling Style</StoryMaker_Settings_PersonalitySection>
+  <StoryMaker_Settings_Difficulty>Difficulty</StoryMaker_Settings_Difficulty>
+  <StoryMaker_Settings_Density>Density</StoryMaker_Settings_Density>
+  <StoryMaker_Settings_Persona>Storyteller Persona (describe the personality and style in natural language):</StoryMaker_Settings_Persona>
+
+  <!-- Difficulty options -->
+  <StoryMaker_Difficulty_Merciful>Merciful</StoryMaker_Difficulty_Merciful>
+  <StoryMaker_Difficulty_Balanced>Balanced</StoryMaker_Difficulty_Balanced>
+  <StoryMaker_Difficulty_Challenging>Challenging</StoryMaker_Difficulty_Challenging>
+  <StoryMaker_Difficulty_Cruel>Cruel</StoryMaker_Difficulty_Cruel>
+
+  <!-- Density options -->
+  <StoryMaker_Density_Silent>Silent</StoryMaker_Density_Silent>
+  <StoryMaker_Density_Balanced>Balanced</StoryMaker_Density_Balanced>
+  <StoryMaker_Density_Chatty>Chatty</StoryMaker_Density_Chatty>
+  <StoryMaker_Density_Talkative>Talkative</StoryMaker_Density_Talkative>
 
   <!-- ================================================================ -->
   <!-- Advanced Settings -->

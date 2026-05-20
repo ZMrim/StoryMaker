@@ -23,9 +23,10 @@ public class GameStateSnapshot
 
 public class FactionRelationEntry
 {
-    public string name;
-    public int relation;
-    public string relationKind;  // Hostile / Neutral / Ally
+    public string defName;      // FactionDef.defName（稳定标识符，LLM 用来指定派系）
+    public string label;        // 显示名称（供 LLM 理解派系身份）
+    public int relation;        // 友好度 -100~100
+    public string relationKind; // Hostile / Neutral / Ally
 }
 
 // 近期发生的 Incident — 输出 defName 和 category，与 LLM 回复的 event_type 保持一致

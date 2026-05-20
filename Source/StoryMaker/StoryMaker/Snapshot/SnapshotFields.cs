@@ -143,14 +143,15 @@ class SnapshotField_FactionRelations : ISnapshotField
 
         foreach (var faction in Find.FactionManager.AllFactionsListForReading)
         {
-            if (faction == playerFaction || faction.IsPlayer || faction.Hidden)
+            if (faction == playerFaction || faction.IsPlayer)
                 continue;
-            if (faction.def == FactionDefOf.Mechanoid || faction.def == FactionDefOf.Insect)
+            if (faction.def == FactionDefOf.Insect)
                 continue;
 
             result.Add(new FactionRelationEntry
             {
-                name = faction.Name,
+                defName = faction.def.defName,
+                label = faction.Name,
                 relation = faction.GoodwillWith(playerFaction),
                 relationKind = faction.PlayerRelationKind.ToString()
             });

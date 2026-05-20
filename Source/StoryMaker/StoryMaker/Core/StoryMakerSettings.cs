@@ -3,6 +3,24 @@ using Verse;
 
 namespace StoryMaker;
 
+// 叙事难度
+public enum DifficultyLevel
+{
+    Merciful,    // 仁慈
+    Balanced,    // 均衡
+    Challenging, // 挑战
+    Cruel        // 残忍
+}
+
+// 叙事密度
+public enum DensityLevel
+{
+    Silent,    // 沉默
+    Balanced,  // 均衡
+    Chatty,    // 碎嘴
+    Talkative  // 话痨
+}
+
 public enum DebugSimulationMode
 {
     None,
@@ -31,11 +49,13 @@ public class StoryMakerSettings : ModSettings
     public string modelName = "";
     public string customBaseUrl = "";
 
-    // 玩家个性化
-    public string playerPersonality = "";
+    // 玩家自定义叙事风格
+    public DifficultyLevel difficultyLevel = DifficultyLevel.Balanced;
+    public DensityLevel densityLevel = DensityLevel.Balanced;
+    public string storytellerPersona = "热情洋溢，充满活力，喜欢用小事件与玩家开玩笑。";
 
     // 死亡记录种族白名单（defName 列表，如 Human, Ratkin 等）
-    public List<string> deathRaceWhitelist = new() { "Human" };
+    public List<string> deathRaceWhitelist = new() { "Human","Ratkin","Rabbie","Axolotl","Kiiro_Race","Milira_Race","Wolfein_Race","Anty","Dragonian_Race","Yuran_Race","Alien_Miho","Mincho_ThingDef","Alien_Moyo","Paniel_Race"};
 
     // 思考模式（仅 DeepSeek 等支持 reasoning 的模型有效）
     // 开启后 LLM 会输出 reasoning_content，消耗额外 token
@@ -71,7 +91,9 @@ public class StoryMakerSettings : ModSettings
         Scribe_Values.Look(ref timeoutSeconds, "timeoutSeconds", 60f);
         Scribe_Values.Look(ref maxRetransmissions, "maxRetransmissions", 2);
         Scribe_Values.Look(ref staleThresholdDays, "staleThresholdDays", 15);
-        Scribe_Values.Look(ref playerPersonality, "playerPersonality", "");
+        Scribe_Values.Look(ref difficultyLevel, "difficultyLevel", DifficultyLevel.Balanced);
+        Scribe_Values.Look(ref densityLevel, "densityLevel", DensityLevel.Balanced);
+        Scribe_Values.Look(ref storytellerPersona, "storytellerPersona", "");
         Scribe_Collections.Look(ref deathRaceWhitelist, "deathRaceWhitelist", LookMode.Value);
         Scribe_Values.Look(ref enableThinking, "enableThinking", false);
         Scribe_Values.Look(ref lowTokenMode, "lowTokenMode", true);

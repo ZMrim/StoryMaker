@@ -8,7 +8,10 @@ namespace StoryMaker.UI;
 // 游戏底部玩家面板：连接状态 + Token 消耗 + 恢复按钮 + 对话入口
 public class StoryMakerBottomTab : MainTabWindow
 {
-    public override Vector2 RequestedTabSize => new(480f, 380f);
+    // 外部 mod 扩展点（如 TTS mod 的状态显示 + 连接按钮）
+    public static System.Action<Listing_Standard> OnDrawExtensions;
+
+    public override Vector2 RequestedTabSize => new(480f, 420f);
 
     public override void DoWindowContents(Rect inRect)
     {
@@ -26,8 +29,15 @@ public class StoryMakerBottomTab : MainTabWindow
         DrawTokenStats(listing);
         listing.Gap(8f);
         DrawRestoreButton(listing);
-        listing.GapLine();
-        listing.Gap(4f);
+        listing.Gap(8f);
+
+        // 外部扩展（TTS 状态等）
+        if (OnDrawExtensions != null)
+        {
+            OnDrawExtensions(listing);
+            listing.Gap(8f);
+        }
+
         DrawDialogueButtons(listing);
 
         listing.End();

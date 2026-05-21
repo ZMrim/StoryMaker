@@ -10,7 +10,7 @@ namespace StoryMaker.Action;
 // 事件执行分发器：应用 intensity_multiplier，调用生命周期钩子，执行事件
 public static class ActionExecutor
 {
-    // 生命周期钩子（Phase 5 TTS mod 使用）
+    // 生命周期钩子（TTS mod 等外部模组使用）
     public static Func<PlannedEvent, bool> OnEventWillExecute;
     public static Action<PlannedEvent> OnEventExecuted;
     public static Action<PlannedEvent> OnEventExecutionFailed;

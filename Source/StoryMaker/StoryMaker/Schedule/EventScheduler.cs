@@ -32,6 +32,13 @@ public static class EventScheduler
     private static int eventRetryCount;
     private static int emptyRetryCount;  // Phase 4: EmptyPlanGuard 重试计数
 
+    // ── 外部模组集成钩子 ──
+    // TTS mod 等外部模组的接入点：
+    // OnEventsPlanned: 所有 Guard 校验通过、事件成功入队后触发（参数为入队事件列表）
+    public static Action<List<PlannedEvent>> OnEventsPlanned;
+    // OnEventCancelled: 事件从队列移除但未执行时触发（参数为 event_id）
+    public static Action<string> OnEventCancelled;
+
     // ACK 指针
     private static int ack => StoryMakerState.Instance.ack;
     private static void SetAck(int value) { StoryMakerState.Instance.ack = value; }
@@ -229,6 +236,7 @@ public static class EventScheduler
             {
                 ActionExecutor.AddFailedEvent(evt.event_id, evt.event_type,
                     $"读档过期: scheduled_tick={evt.scheduled_tick} < curTick={curTick}");
+                OnEventCancelled?.Invoke(evt.event_id);
             }
         }
 
@@ -259,6 +267,7 @@ public static class EventScheduler
                 int age = curTick - evt.generated_at_world_tick;
                 ActionExecutor.AddFailedEvent(evt.event_id, evt.event_type,
                     $"stale_event: generated_at={evt.generated_at_world_tick}, curTick={curTick}, age_days={age / 60000}");
+                OnEventCancelled?.Invoke(evt.event_id);
             }
         }
 
@@ -469,6 +478,11 @@ public static class EventScheduler
             // ACK 推进
             SetAck(response.plan_range.to_tick);
             Log.Message($"[StoryMaker] ACK 推进至 {ack}, 队列深度={eventQueue.Count}, {validEvents?.Count ?? 0} 个新事件入队");
+
+            // 触发外部钩子：TTS mod 等
+            if (validEvents != null && validEvents.Count > 0)
+                OnEventsPlanned?.Invoke(validEvents);
+
             if (DebugLogger.IsEnabled) DebugLogger.WriteSummary();
         }
         catch (Exception ex)

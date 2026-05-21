@@ -14,7 +14,15 @@
       "WebSearch",
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
-      "Bash(grep -v \"Log\\\\.\\\\|grep\\\\|\\\\.cs:.*//\\\\|^\\\\s*//\")"
+      "Bash(grep -v \"Log\\\\.\\\\|grep\\\\|\\\\.cs:.*//\\\\|^\\\\s*//\")",
+      "PowerShell(\"---\")",
+      "PowerShell(dotnet msbuild \"d:\\\\Steam\\\\steamapps\\\\common\\\\RimWorld\\\\Mods\\\\StoryMaker\\\\Source\\\\StoryMaker\\\\StoryMaker\\\\StoryMaker.csproj\" /t:Build /p:Configuration=Debug /restore 2>&1)",
+      "PowerShell(dotnet msbuild \"d:\\\\Steam\\\\steamapps\\\\common\\\\RimWorld\\\\Mods\\\\StorySpeaker\\\\Source\\\\StorySpeaker\\\\StorySpeaker.csproj\" /t:Build /p:Configuration=Debug 2>&1)",
+      "PowerShell(dotnet msbuild \"d:\\\\Steam\\\\steamapps\\\\common\\\\RimWorld\\\\Mods\\\\StorySpeaker\\\\Source\\\\StorySpeaker\\\\StorySpeaker.csproj\" /t:Clean)",
+      "PowerShell(Build /p:Configuration=Debug 2>&1)",
+      "PowerShell(dotnet msbuild \"d:\\\\Steam\\\\steamapps\\\\common\\\\RimWorld\\\\Mods\\\\StorySpeaker\\\\Source\\\\StorySpeaker\\\\StorySpeaker.csproj\" /t:Clean /p:Configuration=Debug 2>&1)",
+      "PowerShell(Remove-Item \"d:\\\\Steam\\\\steamapps\\\\common\\\\RimWorld\\\\Mods\\\\Assemblies\\\\StorySpeaker.dll\" -Force -ErrorAction SilentlyContinue; \"---StoryMaker---\"; \\(Get-Item \"d:\\\\Steam\\\\steamapps\\\\common\\\\RimWorld\\\\Mods\\\\StoryMaker\\\\Assemblies\\\\StoryMaker.dll\"\\).Length; \"---StorySpeaker---\"; \\(Get-Item \"d:\\\\Steam\\\\steamapps\\\\common\\\\RimWorld\\\\Mods\\\\StorySpeaker\\\\Assemblies\\\\StorySpeaker.dll\"\\).Length)",
+      "PowerShell(dotnet msbuild \"d:\\\\Steam\\\\steamapps\\\\common\\\\RimWorld\\\\Mods\\\\StoryMaker\\\\Source\\\\StoryMaker\\\\StoryMaker\\\\StoryMaker.csproj\" /t:Build /p:Configuration=Debug 2>&1)"
     ]
   }
 }

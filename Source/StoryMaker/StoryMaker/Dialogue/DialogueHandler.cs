@@ -18,7 +18,8 @@ public static class DialogueHandler
     private static int requestSeq;             // 请求序号，超时后用于丢弃过期回复
     private static int dialogueRetryCount;     // 解析修正重试（最多 1 次）
 
-    private const float DialogueTimeoutSeconds = 30f;  // 对话超时（现实秒）
+    private const float DialogueTimeoutSeconds = 30f;   // LLM 对话超时（现实秒）
+    private const float TTSTimeoutSeconds = 120f;       // TTS 生成超时（纯 CPU 可能很慢）
 
     // 对话历史
     public static List<DialogueEntry> History = new();
@@ -30,11 +31,20 @@ public static class DialogueHandler
     // 公共状态访问
     public static bool IsWaitingForResponse => isWaitingForResponse;
 
-    // TTS 钩子（Phase 5+，预留）
-    // TTS mod 注册此委托以生成语音。返回 true 表示音频已就绪，false 表示需要等待
+    // TTS 钩子
+    // TTS mod 注册此委托以生成语音。返回 true 表示由 TTS mod 接管，DialogHandler 将等待回调
+    // 返回 false 表示不处理（开关关闭或生成失败），立刻显示
     public static System.Func<string, bool> OnGenerateTTS;
-    // TTS mod 调用此回调通知 StoryMaker 文字+音频+事件可以同步展示
-    public static System.Action<DialogueResponse> OnDialogueReady;
+    // TTS mod 生成完成后调用，通知 DialogueHandler 文字+音频+事件同步展示
+    public static System.Action OnDialogueReady;
+    // 等待 TTS 期间暂存的 LLM 回复
+    private static DialogueResponse pendingTTSResponse;
+    private static string pendingTTSPlayerText;
+    private static bool pendingTTSEventTriggered;
+    private static string pendingTTSTriggeredType;
+    private static float ttsSentRealtime;          // TTS 开始等待时的现实时间
+    // 是否正在等待 TTS 完成
+    public static bool IsWaitingForTTS => pendingTTSResponse != null;
 
     // ── 公共接口 ──
 
@@ -151,26 +161,27 @@ public static class DialogueHandler
                 triggeredType = response.event_type;
             }
 
-            // 记录对话历史
-            var entry = new DialogueEntry
-            {
-                playerText = pendingPlayerText ?? "[玩家消息]",
-                narratorText = response.dialogue_text,
-                hadEvent = eventTriggered,
-                triggeredEventType = triggeredType,
-                gameTick = Find.TickManager?.TicksGame ?? 0
-            };
-            History.Add(entry);
-            pendingPlayerText = null;
-
             // TTS 钩子：通知 TTS mod 有新的对话文本
-            OnGenerateTTS?.Invoke(response.dialogue_text);
+            bool ttsHandled = OnGenerateTTS != null && OnGenerateTTS(response.dialogue_text);
 
-            // 通知 UI 展示
-            OnDialogueReady?.Invoke(response);
-
-            isWaitingForResponse = false;
-            Log.Message($"[StoryMaker] Dialogue: 回复就绪 (触发事件={eventTriggered})");
+            if (ttsHandled)
+            {
+                // TTS mod 接管，暂存回复等待回调
+                pendingTTSResponse = response;
+                pendingTTSPlayerText = pendingPlayerText;
+                pendingTTSEventTriggered = eventTriggered;
+                pendingTTSTriggeredType = triggeredType;
+                pendingPlayerText = null;
+                ttsSentRealtime = UnityEngine.Time.realtimeSinceStartup;
+                Log.Message("[StoryMaker] Dialogue: TTS mod 已接管，等待音频生成...");
+                // isWaitingForResponse 保持 true，玩家在此期间无法发送新消息
+            }
+            else
+            {
+                // 无 TTS 或 TTS 开关关闭，直接显示
+                FinalizeDialogueDisplay(response, pendingPlayerText, eventTriggered, triggeredType);
+                isWaitingForResponse = false;
+            }
         }
         catch (System.Exception ex)
         {
@@ -190,16 +201,18 @@ public static class DialogueHandler
 
     // ── 超时检测 ──
 
-    // 检查是否超时。由对话窗口每帧调用。返回 true 表示已超时
+    // 检查 LLM 阶段是否超时。由对话窗口每帧调用。返回 true 表示已超时
+    // 如果正在等待 TTS，跳过（由 CheckTTSTimeout 单独管理）
     public static bool CheckTimeout()
     {
         if (!isWaitingForResponse) return false;
+        if (IsWaitingForTTS) return false;  // TTS 阶段不受 LLM 超时影响
 
         float elapsed = UnityEngine.Time.realtimeSinceStartup - requestSentRealtime;
         if (elapsed >= DialogueTimeoutSeconds)
         {
             // 超时：添加错误历史条目，重置状态
-            Log.Warning($"[StoryMaker] Dialogue: 超时 ({elapsed:F1}s)，丢弃此请求");
+            Log.Warning($"[StoryMaker] Dialogue: LLM 超时 ({elapsed:F1}s)，丢弃此请求");
             History.Add(new DialogueEntry
             {
                 playerText = pendingPlayerText ?? "[玩家消息]",
@@ -209,6 +222,23 @@ public static class DialogueHandler
             pendingPlayerText = null;
             isWaitingForResponse = false;
             requestSeq++;  // 递增序号，确保任何飞行中的回调都被丢弃
+            return true;
+        }
+
+        return false;
+    }
+
+    // 检查 TTS 阶段是否超时。由对话窗口每帧调用。返回 true 表示已超时
+    public static bool CheckTTSTimeout()
+    {
+        if (!IsWaitingForTTS) return false;
+
+        float elapsed = UnityEngine.Time.realtimeSinceStartup - ttsSentRealtime;
+        if (elapsed >= TTSTimeoutSeconds)
+        {
+            Log.Warning($"[StoryMaker] Dialogue: TTS 超时 ({elapsed:F1}s)，放弃等待语音，直接显示文字");
+            // 直接触发展示（无音频），NotifyTTSReady 内部是幂等的
+            NotifyTTSReady();
             return true;
         }
 
@@ -259,6 +289,50 @@ public static class DialogueHandler
         }
 
         return true;
+    }
+
+    // ── TTS 回调入口 ──
+
+    // TTS mod 生成完成后调用此方法，触发文字+音频+事件同步展示
+    public static void NotifyTTSReady()
+    {
+        if (pendingTTSResponse == null) return;
+
+        var resp = pendingTTSResponse;
+        var playerText = pendingTTSPlayerText;
+        var eventTriggered = pendingTTSEventTriggered;
+        var triggeredType = pendingTTSTriggeredType;
+
+        pendingTTSResponse = null;
+        pendingTTSPlayerText = null;
+        pendingTTSEventTriggered = false;
+        pendingTTSTriggeredType = null;
+
+        FinalizeDialogueDisplay(resp, playerText, eventTriggered, triggeredType);
+        isWaitingForResponse = false;
+        Log.Message($"[StoryMaker] Dialogue: TTS 完成，回复展示 (触发事件={eventTriggered})");
+    }
+
+    // ── 内部显示逻辑 ──
+
+    private static void FinalizeDialogueDisplay(DialogueResponse response,
+        string playerText, bool eventTriggered, string triggeredType)
+    {
+        // 记录对话历史
+        var entry = new DialogueEntry
+        {
+            playerText = playerText ?? "[玩家消息]",
+            narratorText = response.dialogue_text,
+            hadEvent = eventTriggered,
+            triggeredEventType = triggeredType,
+            gameTick = Find.TickManager?.TicksGame ?? 0
+        };
+        History.Add(entry);
+
+        // 通知 UI 展示
+        OnDialogueReady?.Invoke();
+
+        Log.Message($"[StoryMaker] Dialogue: 回复就绪 (触发事件={eventTriggered})");
     }
 
     // ── 辅助 ──

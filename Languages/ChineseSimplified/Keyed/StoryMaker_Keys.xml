@@ -110,6 +110,7 @@
   <StoryMaker_Dialogue_Placeholder>在下方输入你想对叙事者说的话...</StoryMaker_Dialogue_Placeholder>
   <StoryMaker_Dialogue_Send>发送</StoryMaker_Dialogue_Send>
   <StoryMaker_Dialogue_Thinking>思考中</StoryMaker_Dialogue_Thinking>
+  <StoryMaker_Dialogue_Speaking>说话中</StoryMaker_Dialogue_Speaking>
   <StoryMaker_Dialogue_Timeout>（叙事者没有回应...连接超时了。请稍后再试。）</StoryMaker_Dialogue_Timeout>
   <!-- {0}=event type -->
   <StoryMaker_Dialogue_EventTriggered>◆ 触发了事件: {0}</StoryMaker_Dialogue_EventTriggered>

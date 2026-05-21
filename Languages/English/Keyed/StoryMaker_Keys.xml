@@ -110,6 +110,7 @@
   <StoryMaker_Dialogue_Placeholder>Type your message to the storyteller...</StoryMaker_Dialogue_Placeholder>
   <StoryMaker_Dialogue_Send>Send</StoryMaker_Dialogue_Send>
   <StoryMaker_Dialogue_Thinking>Thinking</StoryMaker_Dialogue_Thinking>
+  <StoryMaker_Dialogue_Speaking>Speaking</StoryMaker_Dialogue_Speaking>
   <StoryMaker_Dialogue_Timeout>(The storyteller did not respond... connection timed out. Please try again.)</StoryMaker_Dialogue_Timeout>
   <!-- {0}=event type -->
   <StoryMaker_Dialogue_EventTriggered>◆ Event triggered: {0}</StoryMaker_Dialogue_EventTriggered>

@@ -67,8 +67,9 @@ public class StoryMakerDialogueWindow : Window
     public override void WindowUpdate()
     {
         base.WindowUpdate();
-        // 每帧检查对话超时
+        // 每帧检查 LLM 与 TTS 超时
         DialogueHandler.CheckTimeout();
+        DialogueHandler.CheckTTSTimeout();
     }
 
     public override void DoWindowContents(Rect inRect)
@@ -246,7 +247,14 @@ public class StoryMakerDialogueWindow : Window
         bool hasText = !string.IsNullOrWhiteSpace(inputText);
         bool waiting = DialogueHandler.IsWaitingForResponse;
         GUI.color = hasText && !waiting ? new Color(0.35f, 0.65f, 0.45f) : new Color(0.25f, 0.25f, 0.28f);
-        string btnLabel = waiting ? "StoryMaker_Dialogue_Thinking".Translate() : "StoryMaker_Dialogue_Send".Translate();
+        bool waitingTTS = DialogueHandler.IsWaitingForTTS;
+        string btnLabel;
+        if (waitingTTS)
+            btnLabel = "StoryMaker_Dialogue_Speaking".Translate();
+        else if (waiting)
+            btnLabel = "StoryMaker_Dialogue_Thinking".Translate();
+        else
+            btnLabel = "StoryMaker_Dialogue_Send".Translate();
         if (Widgets.ButtonText(btnRect, btnLabel) && hasText && !waiting)
         {
             DialogueHandler.SendMessage(inputText);

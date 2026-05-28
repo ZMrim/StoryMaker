@@ -42,7 +42,7 @@ public class StoryMaker : Mod
 
     public override void DoSettingsWindowContents(Rect inRect)
     {
-        float contentHeight = 1050f;
+        float contentHeight = 1400f;
         Rect contentRect = new Rect(0f, 0f, inRect.width - 16f, contentHeight);
         Widgets.BeginScrollView(inRect, ref settingsScrollPos, contentRect);
 
@@ -119,47 +119,79 @@ public class StoryMaker : Mod
         listing.GapLine();
         listing.Gap(4f);
 
+        // ── 叙事者基本信息 ──
+        listing.Label("StoryMaker_Settings_NarratorInfo".Translate());
+
+        // 叙事者名称
+        listing.Label("StoryMaker_Settings_NarratorName".Translate());
+        Settings.narratorName = Widgets.TextField(listing.GetRect(Text.LineHeight), Settings.narratorName ?? "");
+
+        // 叙事者头像路径
+        listing.Label("StoryMaker_Settings_AvatarPath".Translate());
+        Settings.avatarPath = Widgets.TextField(listing.GetRect(Text.LineHeight), Settings.avatarPath ?? "");
+
+        listing.Gap();
+        listing.GapLine();
+        listing.Gap(4f);
+
         // ── 玩家自定义叙事风格 ──
         listing.Label("StoryMaker_Settings_PersonalitySection".Translate());
 
-        // 叙事难度
-        listing.Label("StoryMaker_Settings_Difficulty".Translate());
-        Rect diffRect = listing.GetRect(Text.LineHeight);
-        string diffLabel = ("StoryMaker_Difficulty_" + Settings.difficultyLevel.ToString()).Translate();
-        if (Widgets.ButtonText(diffRect, diffLabel))
-        {
-            var options = new List<FloatMenuOption>();
-            foreach (DifficultyLevel d in Enum.GetValues(typeof(DifficultyLevel)))
-            {
-                var captured = d;
-                options.Add(new FloatMenuOption(
-                    ("StoryMaker_Difficulty_" + captured.ToString()).Translate(),
-                    () => Settings.difficultyLevel = captured));
-            }
-            Find.WindowStack.Add(new FloatMenu(options));
-        }
+        // 预设 / 自定义切换
+        listing.CheckboxLabeled("StoryMaker_Settings_UseCustomStyle".Translate(),
+            ref Settings.useCustomStyle, "StoryMaker_Settings_UseCustomStyle_Desc".Translate());
 
-        // 叙事密度
-        listing.Label("StoryMaker_Settings_Density".Translate());
-        Rect densRect = listing.GetRect(Text.LineHeight);
-        string densLabel = ("StoryMaker_Density_" + Settings.densityLevel.ToString()).Translate();
-        if (Widgets.ButtonText(densRect, densLabel))
+        if (!Settings.useCustomStyle)
         {
-            var options = new List<FloatMenuOption>();
-            foreach (DensityLevel d in Enum.GetValues(typeof(DensityLevel)))
+            // ── 预设模式 ──
+            listing.Label("StoryMaker_Settings_Difficulty".Translate());
+            Rect diffRect = listing.GetRect(Text.LineHeight);
+            string diffLabel = ("StoryMaker_Difficulty_" + Settings.difficultyLevel.ToString()).Translate();
+            if (Widgets.ButtonText(diffRect, diffLabel))
             {
-                var captured = d;
-                options.Add(new FloatMenuOption(
-                    ("StoryMaker_Density_" + captured.ToString()).Translate(),
-                    () => Settings.densityLevel = captured));
+                var options = new List<FloatMenuOption>();
+                foreach (DifficultyLevel d in Enum.GetValues(typeof(DifficultyLevel)))
+                {
+                    var captured = d;
+                    options.Add(new FloatMenuOption(
+                        ("StoryMaker_Difficulty_" + captured.ToString()).Translate(),
+                        () => Settings.difficultyLevel = captured));
+                }
+                Find.WindowStack.Add(new FloatMenu(options));
             }
-            Find.WindowStack.Add(new FloatMenu(options));
-        }
 
-        // 叙事者人设
-        listing.Label("StoryMaker_Settings_Persona".Translate());
-        Rect personaRect = listing.GetRect(Text.LineHeight * 4);
-        Settings.storytellerPersona = Widgets.TextArea(personaRect, Settings.storytellerPersona ?? "");
+            listing.Label("StoryMaker_Settings_Density".Translate());
+            Rect densRect = listing.GetRect(Text.LineHeight);
+            string densLabel = ("StoryMaker_Density_" + Settings.densityLevel.ToString()).Translate();
+            if (Widgets.ButtonText(densRect, densLabel))
+            {
+                var options = new List<FloatMenuOption>();
+                foreach (DensityLevel d in Enum.GetValues(typeof(DensityLevel)))
+                {
+                    var captured = d;
+                    options.Add(new FloatMenuOption(
+                        ("StoryMaker_Density_" + captured.ToString()).Translate(),
+                        () => Settings.densityLevel = captured));
+                }
+                Find.WindowStack.Add(new FloatMenu(options));
+            }
+
+            listing.Label("StoryMaker_Settings_Persona".Translate());
+            Rect personaRect = listing.GetRect(Text.LineHeight * 4);
+            Settings.storytellerPersona = Widgets.TextArea(personaRect, Settings.storytellerPersona ?? "");
+        }
+        else
+        {
+            // ── 自定义模式 ──
+
+            listing.Label("StoryMaker_Settings_CustomStyle".Translate());
+            Rect customStyleRect = listing.GetRect(Text.LineHeight * 4);
+            Settings.customNarratorStyle = Widgets.TextArea(customStyleRect, Settings.customNarratorStyle ?? "");
+
+            listing.Label("StoryMaker_Settings_CustomPersona".Translate());
+            Rect customPersonaRect = listing.GetRect(Text.LineHeight * 4);
+            Settings.customNarratorPersona = Widgets.TextArea(customPersonaRect, Settings.customNarratorPersona ?? "");
+        }
     }
 
     // ── 高级设置 ──

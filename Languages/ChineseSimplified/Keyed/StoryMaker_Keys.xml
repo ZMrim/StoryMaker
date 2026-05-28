@@ -16,7 +16,15 @@
   <StoryMaker_Settings_ApiKey>API Key</StoryMaker_Settings_ApiKey>
   <StoryMaker_Settings_ModelName>模型名称</StoryMaker_Settings_ModelName>
   <StoryMaker_Settings_CustomUrl>自定义 URL</StoryMaker_Settings_CustomUrl>
+  <StoryMaker_Settings_NarratorInfo>叙事者基本信息</StoryMaker_Settings_NarratorInfo>
+  <StoryMaker_Settings_NarratorName>叙事者名称</StoryMaker_Settings_NarratorName>
+  <StoryMaker_Settings_AvatarPath>叙事者头像路径（PNG 绝对路径，留空使用默认）</StoryMaker_Settings_AvatarPath>
+
   <StoryMaker_Settings_PersonalitySection>玩家自定义叙事风格</StoryMaker_Settings_PersonalitySection>
+  <StoryMaker_Settings_UseCustomStyle>启用自定义风格（关闭 = 预设模式）</StoryMaker_Settings_UseCustomStyle>
+  <StoryMaker_Settings_UseCustomStyle_Desc>关闭时使用叙事难度+叙事频率+叙事者人设的预设组合；开启后下方显示两个文本框由你自由填写。</StoryMaker_Settings_UseCustomStyle_Desc>
+  <StoryMaker_Settings_CustomStyle>叙事风格（自然语言描述事件倾向、频率、节奏等）</StoryMaker_Settings_CustomStyle>
+  <StoryMaker_Settings_CustomPersona>叙事者人设（自然语言描述叙事者的性格和口吻）</StoryMaker_Settings_CustomPersona>
   <StoryMaker_Settings_Difficulty>叙事难度</StoryMaker_Settings_Difficulty>
   <StoryMaker_Settings_Density>叙事密度</StoryMaker_Settings_Density>
   <StoryMaker_Settings_Persona>叙事者人设（用自然语言描述你希望叙事者具备的性格和风格）:</StoryMaker_Settings_Persona>

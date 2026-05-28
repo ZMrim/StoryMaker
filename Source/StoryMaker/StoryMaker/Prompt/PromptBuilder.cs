@@ -146,38 +146,74 @@ public static class PromptBuilder
         var settings = StoryMaker.Instance?.Settings;
         if (settings == null) return "";
 
-        string diffContent = PromptTemplates.GetDifficultyPrompt(settings.difficultyLevel.ToString());
-        string densContent = PromptTemplates.GetDensityPrompt(settings.densityLevel.ToString());
-        string persona = (settings.storytellerPersona ?? "").Trim();
-
-        if (string.IsNullOrWhiteSpace(diffContent) && string.IsNullOrWhiteSpace(densContent) && string.IsNullOrWhiteSpace(persona))
-            return "";
-
         var sb = new StringBuilder();
         sb.AppendLine();
         sb.AppendLine("## 玩家自定义叙事风格");
 
-        if (!string.IsNullOrWhiteSpace(diffContent))
+        // 叙事者名称
+        string name = (settings.narratorName ?? "").Trim();
+        if (!string.IsNullOrWhiteSpace(name))
         {
             sb.AppendLine();
-            sb.AppendLine("### 叙事难度");
-            sb.Append(diffContent.TrimEnd());
+            sb.AppendLine($"你的名字是 \"{name}\"。在叙事和对话中请使用此名称自称。");
         }
 
-        if (!string.IsNullOrWhiteSpace(densContent))
+        if (settings.useCustomStyle)
         {
-            sb.AppendLine();
-            sb.AppendLine();
-            sb.AppendLine("### 叙事密度");
-            sb.Append(densContent.TrimEnd());
-        }
+            // ── 自定义模式 ──
+            string customStyle = (settings.customNarratorStyle ?? "").Trim();
+            string customPersona = (settings.customNarratorPersona ?? "").Trim();
 
-        if (!string.IsNullOrWhiteSpace(persona))
+            if (!string.IsNullOrWhiteSpace(customStyle))
+            {
+                sb.AppendLine();
+                sb.AppendLine("### 叙事风格");
+                sb.Append(customStyle);
+            }
+
+            if (!string.IsNullOrWhiteSpace(customPersona))
+            {
+                sb.AppendLine();
+                sb.AppendLine();
+                sb.AppendLine("### 叙事者人设");
+                sb.Append(customPersona);
+            }
+
+            if (string.IsNullOrWhiteSpace(customStyle) && string.IsNullOrWhiteSpace(customPersona))
+                return "";
+        }
+        else
         {
-            sb.AppendLine();
-            sb.AppendLine();
-            sb.AppendLine("### 叙事者人设");
-            sb.Append(persona);
+            // ── 预设模式 ──
+            string diffContent = PromptTemplates.GetDifficultyPrompt(settings.difficultyLevel.ToString());
+            string densContent = PromptTemplates.GetDensityPrompt(settings.densityLevel.ToString());
+            string persona = (settings.storytellerPersona ?? "").Trim();
+
+            if (string.IsNullOrWhiteSpace(diffContent) && string.IsNullOrWhiteSpace(densContent) && string.IsNullOrWhiteSpace(persona))
+                return "";
+
+            if (!string.IsNullOrWhiteSpace(diffContent))
+            {
+                sb.AppendLine();
+                sb.AppendLine("### 叙事难度");
+                sb.Append(diffContent.TrimEnd());
+            }
+
+            if (!string.IsNullOrWhiteSpace(densContent))
+            {
+                sb.AppendLine();
+                sb.AppendLine();
+                sb.AppendLine("### 叙事密度");
+                sb.Append(densContent.TrimEnd());
+            }
+
+            if (!string.IsNullOrWhiteSpace(persona))
+            {
+                sb.AppendLine();
+                sb.AppendLine();
+                sb.AppendLine("### 叙事者人设");
+                sb.Append(persona);
+            }
         }
 
         return sb.ToString().TrimEnd();

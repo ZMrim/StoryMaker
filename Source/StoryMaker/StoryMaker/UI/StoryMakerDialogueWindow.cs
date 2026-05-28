@@ -13,10 +13,16 @@ public class StoryMakerDialogueWindow : Window
     // 全局单例：同一时间只允许一个对话窗口
     private static StoryMakerDialogueWindow currentInstance;
 
-    // 打开对话窗口（防重复）
+    // 打开对话窗口（防重复 + 防跨存档残留）
     public static void Open()
     {
-        if (currentInstance != null) return;  // 已打开 → 不重复创建
+        // 检测跨存档，清除旧对话历史
+        DialogueHandler.EnsureHistoryCleared();
+
+        // 清除可能因返回主菜单而残留的过期单例
+        if (currentInstance != null && !Find.WindowStack.IsOpen(typeof(StoryMakerDialogueWindow)))
+            currentInstance = null;
+        if (currentInstance != null) return;
         var window = new StoryMakerDialogueWindow();
         Find.WindowStack.Add(window);
     }
@@ -24,7 +30,11 @@ public class StoryMakerDialogueWindow : Window
     private Vector2 scrollPosition;
     private string inputText = "";
     private float lastHistoryCount;
-    private const float BubbleCornerRadius = 8f;
+    // 头像缓存
+    private Texture2D cachedAvatar;
+    private string cachedAvatarPath;
+    private const float AvatarSize = 36f;
+    private const float AvatarGap = 6f;
     private const float MaxBubbleWidthRatio = 0.78f;
 
     // 气泡颜色
@@ -140,7 +150,7 @@ public class StoryMakerDialogueWindow : Window
         float y = 10f;
         for (int i = 0; i < history.Count; i++)
         {
-            y += DrawEntryBubble(new Rect(0, y, viewWidth, heights[i]), history[i], viewWidth) + 12f;
+            y += DrawEntryBubble(new Rect(0, y, viewWidth, heights[i]), history[i], viewWidth) + 20f;
         }
 
         Widgets.EndScrollView();
@@ -154,7 +164,7 @@ public class StoryMakerDialogueWindow : Window
         Text.Font = GameFont.Small;
         float playerH = Text.CalcHeight(entry.playerText ?? "", textWidth);
         float narratorH = Text.CalcHeight(entry.narratorText ?? "", textWidth);
-        float h = playerH + narratorH + 26f;  // padding + gap
+        float h = playerH + narratorH + 34f;  // padding + gap (extra for spacing)
 
         if (entry.hadEvent)
         {
@@ -190,15 +200,26 @@ public class StoryMakerDialogueWindow : Window
             Widgets.Label(new Rect(textX, rect.y + 8f, bubbleWidth - 20f, playerH), entry.playerText);
             GUI.color = Color.white;
 
-            rect.y += playerH + 18f;
+            rect.y += playerH + 22f;
         }
 
         // ── 叙事者消息（左对齐，深色气泡）──
         if (!string.IsNullOrEmpty(entry.narratorText))
         {
-            float textW = Mathf.Min(Text.CalcSize(entry.narratorText).x + 20f, maxBubbleWidth);
+            // 尝试加载头像
+            TryLoadAvatar();
+
+            float avatarOffset = 0f;
+            if (cachedAvatar != null)
+            {
+                avatarOffset = AvatarSize + AvatarGap;
+                var avatarRect = new Rect(rect.x, rect.y, AvatarSize, AvatarSize);
+                GUI.DrawTexture(avatarRect, cachedAvatar, ScaleMode.ScaleToFit);
+            }
+
+            float textW = Mathf.Min(Text.CalcSize(entry.narratorText).x + 20f, maxBubbleWidth - avatarOffset);
             bubbleWidth = textW;
-            bubbleX = rect.x;
+            bubbleX = rect.x + avatarOffset;
             textX = bubbleX + 10f;
 
             float narratorH = Text.CalcHeight(entry.narratorText, bubbleWidth - 20f);
@@ -211,7 +232,7 @@ public class StoryMakerDialogueWindow : Window
             Widgets.Label(new Rect(textX, rect.y + 8f, bubbleWidth - 20f, narratorH), entry.narratorText);
             GUI.color = Color.white;
 
-            rect.y += narratorH + 18f;
+            rect.y += narratorH + 22f;
         }
 
         // ── 事件提示 ──
@@ -269,6 +290,37 @@ public class StoryMakerDialogueWindow : Window
             DialogueHandler.SendMessage(inputText);
             inputText = "";
             Event.current.Use();
+        }
+    }
+
+    // 加载叙事者头像（带缓存，避免每帧读磁盘）
+    private void TryLoadAvatar()
+    {
+        string path = global::StoryMaker.StoryMaker.Instance?.Settings?.avatarPath ?? "";
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            cachedAvatar = null;
+            cachedAvatarPath = "";
+            return;
+        }
+        if (path == cachedAvatarPath && cachedAvatar != null) return;  // 已缓存
+
+        cachedAvatarPath = path;
+        if (!System.IO.File.Exists(path))
+        {
+            cachedAvatar = null;
+            return;
+        }
+        try
+        {
+            byte[] data = System.IO.File.ReadAllBytes(path);
+            cachedAvatar = new Texture2D(1, 1);
+            cachedAvatar.LoadImage(data);  // PNG → Texture2D
+        }
+        catch (System.Exception ex)
+        {
+            Verse.Log.Warning($"[StoryMaker] 加载头像失败 ({path}): {ex.Message}");
+            cachedAvatar = null;
         }
     }
 

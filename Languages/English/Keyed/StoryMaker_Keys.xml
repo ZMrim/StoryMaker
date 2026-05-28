@@ -16,7 +16,15 @@
   <StoryMaker_Settings_ApiKey>API Key</StoryMaker_Settings_ApiKey>
   <StoryMaker_Settings_ModelName>Model Name</StoryMaker_Settings_ModelName>
   <StoryMaker_Settings_CustomUrl>Custom URL</StoryMaker_Settings_CustomUrl>
+  <StoryMaker_Settings_NarratorInfo>Narrator Info</StoryMaker_Settings_NarratorInfo>
+  <StoryMaker_Settings_NarratorName>Narrator Name</StoryMaker_Settings_NarratorName>
+  <StoryMaker_Settings_AvatarPath>Avatar Path (PNG absolute path, empty = default)</StoryMaker_Settings_AvatarPath>
+
   <StoryMaker_Settings_PersonalitySection>Player Custom Storytelling Style</StoryMaker_Settings_PersonalitySection>
+  <StoryMaker_Settings_UseCustomStyle>Enable Custom Style (off = preset mode)</StoryMaker_Settings_UseCustomStyle>
+  <StoryMaker_Settings_UseCustomStyle_Desc>When off, use the preset combination of Difficulty + Frequency + Persona. When on, two text boxes below let you freely define the style.</StoryMaker_Settings_UseCustomStyle_Desc>
+  <StoryMaker_Settings_CustomStyle>Storytelling Style (describe event tendencies, frequency, pacing etc. in natural language)</StoryMaker_Settings_CustomStyle>
+  <StoryMaker_Settings_CustomPersona>Storyteller Persona (describe the narrator's personality and tone)</StoryMaker_Settings_CustomPersona>
   <StoryMaker_Settings_Difficulty>Difficulty</StoryMaker_Settings_Difficulty>
   <StoryMaker_Settings_Density>Density</StoryMaker_Settings_Density>
   <StoryMaker_Settings_Persona>Storyteller Persona (describe the personality and style in natural language):</StoryMaker_Settings_Persona>

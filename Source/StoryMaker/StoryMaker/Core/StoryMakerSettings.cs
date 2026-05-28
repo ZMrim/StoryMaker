@@ -49,10 +49,20 @@ public class StoryMakerSettings : ModSettings
     public string modelName = "";
     public string customBaseUrl = "";
 
+    // 叙事者基本信息
+    public string narratorName = "古明地恋";
+
     // 玩家自定义叙事风格
+    public bool useCustomStyle = false;
     public DifficultyLevel difficultyLevel = DifficultyLevel.Balanced;
     public DensityLevel densityLevel = DensityLevel.Balanced;
-    public string storytellerPersona = "热情洋溢，充满活力，喜欢用小事件与玩家开玩笑。";
+    public string storytellerPersona = "地灵殿的古明地恋，黑暗与纯真并存。";
+    // 自定义风格（useCustomStyle = true 时生效）
+    public string customNarratorStyle = "地灵殿的古明地恋是无意识的妖怪，因此恋恋的叙事风格完全无法预测，叙事完全随机，毫无规律可言。";
+    public string customNarratorPersona = "地灵殿的古明地恋，黑暗与纯真并存。";
+
+    // 叙事者头像（绝对路径指向 PNG，空不使用自定义头像）
+    public string avatarPath = "";
 
     // 死亡记录种族白名单（defName 列表，如 Human, Ratkin 等）
     public List<string> deathRaceWhitelist = new() { "Human","Ratkin","Rabbie","Axolotl","Kiiro_Race","Milira_Race","Wolfein_Race","Anty","Dragonian_Race","Yuran_Race","Alien_Miho","Mincho_ThingDef","Alien_Moyo","Paniel_Race"};
@@ -91,9 +101,14 @@ public class StoryMakerSettings : ModSettings
         Scribe_Values.Look(ref timeoutSeconds, "timeoutSeconds", 60f);
         Scribe_Values.Look(ref maxRetransmissions, "maxRetransmissions", 2);
         Scribe_Values.Look(ref staleThresholdDays, "staleThresholdDays", 15);
+        Scribe_Values.Look(ref narratorName, "narratorName", "AI 叙事者");
+        Scribe_Values.Look(ref useCustomStyle, "useCustomStyle", false);
         Scribe_Values.Look(ref difficultyLevel, "difficultyLevel", DifficultyLevel.Balanced);
         Scribe_Values.Look(ref densityLevel, "densityLevel", DensityLevel.Balanced);
         Scribe_Values.Look(ref storytellerPersona, "storytellerPersona", "");
+        Scribe_Values.Look(ref customNarratorStyle, "customNarratorStyle", "");
+        Scribe_Values.Look(ref customNarratorPersona, "customNarratorPersona", "");
+        Scribe_Values.Look(ref avatarPath, "avatarPath", "");
         Scribe_Collections.Look(ref deathRaceWhitelist, "deathRaceWhitelist", LookMode.Value);
         Scribe_Values.Look(ref enableThinking, "enableThinking", false);
         Scribe_Values.Look(ref lowTokenMode, "lowTokenMode", true);

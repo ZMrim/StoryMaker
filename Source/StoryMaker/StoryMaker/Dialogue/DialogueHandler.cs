@@ -23,6 +23,7 @@ public static class DialogueHandler
 
     // 对话历史
     public static List<DialogueEntry> History = new();
+    private static int lastGameStartAbsTick = -1;
 
     // 即时事件冷却与窗口计数
     public static int dialogueCooldownUntil;            // 下次允许即时事件的最小 tick
@@ -30,6 +31,18 @@ public static class DialogueHandler
 
     // 公共状态访问
     public static bool IsWaitingForResponse => isWaitingForResponse;
+
+    // 检测并清除跨存档残留的对话历史（由对话框 Open() 在打开前调用）
+    public static void EnsureHistoryCleared()
+    {
+        int curAbsTick = Find.TickManager?.gameStartAbsTick ?? -1;
+        if (curAbsTick != lastGameStartAbsTick)
+        {
+            lastGameStartAbsTick = curAbsTick;
+            History.Clear();
+            Log.Message("[StoryMaker] Dialogue: 新游戏/读档，对话历史已清除");
+        }
+    }
 
     // TTS 钩子
     // TTS mod 注册此委托以生成语音。返回 true 表示由 TTS mod 接管，DialogHandler 将等待回调
@@ -51,6 +64,15 @@ public static class DialogueHandler
     // 玩家发起对话
     public static void SendMessage(string playerText)
     {
+        // 检测新游戏 / 读档，清除上一存档的对话历史
+        int curAbsTick = Find.TickManager?.gameStartAbsTick ?? -1;
+        if (curAbsTick != lastGameStartAbsTick)
+        {
+            lastGameStartAbsTick = curAbsTick;
+            History.Clear();
+            Log.Message("[StoryMaker] Dialogue: 新游戏/读档，对话历史已清除");
+        }
+
         if (isWaitingForResponse)
         {
             Messages.Message("StoryMaker_Dialogue_NarratorThinking".Translate(), MessageTypeDefOf.NeutralEvent, false);
@@ -67,8 +89,14 @@ public static class DialogueHandler
 
         int curTick = Find.TickManager?.TicksGame ?? 0;
 
-        // 存储玩家消息文本，供 OnResponseReceived 使用
+        // 立即显示玩家消息（不等 LLM 回复）
         pendingPlayerText = playerText;
+        History.Add(new DialogueEntry
+        {
+            playerText = playerText,
+            narratorText = "",
+            gameTick = curTick
+        });
 
         // 构建 Prompt
         var messages = DialoguePromptBuilder.Build(playerText, History, curTick);
@@ -139,13 +167,16 @@ public static class DialogueHandler
                     return;
                 }
                 Log.Warning($"[StoryMaker] Dialogue: 修正重试后仍失败，显示错误回复");
-                var fallbackEntry = new DialogueEntry
+                // 更新末条玩家消息的回复
+                var pText = pendingPlayerText ?? "";
+                for (int i = History.Count - 1; i >= 0; i--)
                 {
-                    playerText = "[玩家上一条消息]",
-                    narratorText = "(叙事者暂时无法回应...请稍后再试)",
-                    gameTick = Find.TickManager?.TicksGame ?? 0
-                };
-                History.Add(fallbackEntry);
+                    if (string.IsNullOrEmpty(History[i].narratorText) && History[i].playerText == pText)
+                    {
+                        History[i].narratorText = "(叙事者暂时无法回应...请稍后再试)";
+                        break;
+                    }
+                }
                 isWaitingForResponse = false;
                 return;
             }
@@ -195,7 +226,18 @@ public static class DialogueHandler
         Log.Error($"[StoryMaker] Dialogue: HTTP 错误 — {failureReason}: {errorMessage}");
         isWaitingForResponse = false;
 
-        // 对话通道的错误不触发降级弹窗，仅轻量提示
+        // 更新末条玩家消息的回复为错误文本
+        var playerMsg = pendingPlayerText ?? "";
+        for (int i = History.Count - 1; i >= 0; i--)
+        {
+            if (string.IsNullOrEmpty(History[i].narratorText) && History[i].playerText == playerMsg)
+            {
+                History[i].narratorText = "StoryMaker_Dialogue_NetworkError".Translate(failureReason);
+                break;
+            }
+        }
+        pendingPlayerText = null;
+
         Messages.Message("StoryMaker_Dialogue_NetworkError".Translate(failureReason), MessageTypeDefOf.NeutralEvent, false);
     }
 
@@ -211,17 +253,20 @@ public static class DialogueHandler
         float elapsed = UnityEngine.Time.realtimeSinceStartup - requestSentRealtime;
         if (elapsed >= DialogueTimeoutSeconds)
         {
-            // 超时：添加错误历史条目，重置状态
+            // 超时：更新末条玩家消息的回复为超时文本
             Log.Warning($"[StoryMaker] Dialogue: LLM 超时 ({elapsed:F1}s)，丢弃此请求");
-            History.Add(new DialogueEntry
+            var playerMsg = pendingPlayerText ?? "";
+            for (int i = History.Count - 1; i >= 0; i--)
             {
-                playerText = pendingPlayerText ?? "[玩家消息]",
-                narratorText = "StoryMaker_Dialogue_Timeout".Translate(),
-                gameTick = Find.TickManager?.TicksGame ?? 0
-            });
+                if (string.IsNullOrEmpty(History[i].narratorText) && History[i].playerText == playerMsg)
+                {
+                    History[i].narratorText = "StoryMaker_Dialogue_Timeout".Translate();
+                    break;
+                }
+            }
             pendingPlayerText = null;
             isWaitingForResponse = false;
-            requestSeq++;  // 递增序号，确保任何飞行中的回调都被丢弃
+            requestSeq++;
             return true;
         }
 
@@ -318,16 +363,17 @@ public static class DialogueHandler
     private static void FinalizeDialogueDisplay(DialogueResponse response,
         string playerText, bool eventTriggered, string triggeredType)
     {
-        // 记录对话历史
-        var entry = new DialogueEntry
+        // 找到上次 SendMessage 时添加的玩家消息条目，补充叙事者回复
+        for (int i = History.Count - 1; i >= 0; i--)
         {
-            playerText = playerText ?? "[玩家消息]",
-            narratorText = response.dialogue_text,
-            hadEvent = eventTriggered,
-            triggeredEventType = triggeredType,
-            gameTick = Find.TickManager?.TicksGame ?? 0
-        };
-        History.Add(entry);
+            if (string.IsNullOrEmpty(History[i].narratorText) && History[i].playerText == playerText)
+            {
+                History[i].narratorText = response.dialogue_text;
+                History[i].hadEvent = eventTriggered;
+                History[i].triggeredEventType = triggeredType;
+                break;
+            }
+        }
 
         // 通知 UI 展示
         OnDialogueReady?.Invoke();

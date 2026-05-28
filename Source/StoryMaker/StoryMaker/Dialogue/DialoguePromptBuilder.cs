@@ -61,6 +61,8 @@ public static class DialoguePromptBuilder
             for (int i = start; i < history.Count; i++)
             {
                 var entry = history[i];
+                // 跳过未收到回复的进行中消息（玩家刚发但 LLM 尚未回复）
+                if (string.IsNullOrEmpty(entry.narratorText)) continue;
                 sb.AppendLine($"殖民者: {entry.playerText}");
                 sb.AppendLine($"叙事者: {entry.narratorText}");
                 if (entry.hadEvent)
@@ -74,9 +76,13 @@ public static class DialoguePromptBuilder
         sb.AppendLine(BuildColonySnapshot(curTick));
         sb.AppendLine();
 
+        var settings = StoryMaker.Instance?.Settings;
+        string narratorName = (settings?.narratorName ?? "").Trim();
+        string nameLabel = string.IsNullOrWhiteSpace(narratorName) ? "叙事者" : narratorName;
+
         sb.AppendLine($"殖民者对你说: \"{playerInput}\"");
         sb.AppendLine();
-        sb.AppendLine($"请以叙事者身份回复。请使用{PromptTemplates.GetPlayerLanguageName()}。");
+        sb.AppendLine($"请以{nameLabel}的身份回复。请使用{PromptTemplates.GetPlayerLanguageName()}。");
 
         return sb.ToString();
     }
